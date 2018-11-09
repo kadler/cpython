@@ -2262,10 +2262,15 @@ if test "$use_lfs" = "yes"; then
 # Two defines needed to enable largefile support on various platforms
 # These may affect some typedefs
 case $ac_sys_system/$ac_sys_release in
-AIX*)
-    AC_DEFINE(_LARGE_FILES, 1,
-    [This must be defined on AIX systems to enable large file support.])
-    ;;
+  AIX*)
+    # Only define _LARGE_FILES on 32-bit builds. 64-bit AIX supports LFS
+    # by default so it's unnecessary and, more importantly, due to the poor way
+    # AIX implemented _LARGE_FILES, it causes compile errors on 64-bit builds.
+    if test "$ac_cv_sizeof_void_p" -eq 4; then
+      AC_DEFINE(_LARGE_FILES, 1,
+      [This must be defined on 32-bit AIX systems to enable large file support.])
+    fi
+;;
 esac
 AC_DEFINE(_LARGEFILE_SOURCE, 1,
 [This must be defined on some systems to enable large file support.])
