@@ -83,6 +83,12 @@ else:
 # Issue #14110: Some tests fail on FreeBSD if the user is in the wheel group.
 HAVE_WHEEL_GROUP = sys.platform.startswith('freebsd') and os.getgid() == 0
 
+# On IBM i, users need *JOBCTL special authority to set the priority,
+# even to set it to a lower priority
+NEED_JOBCTL_AUTH = False
+if sys.platform == 'os400':
+    # TODO: Check for *JOBCTL here
+    NEED_JOBCTL_AUTH = True
 
 @contextlib.contextmanager
 def ignore_deprecation_warnings(msg_regex, quiet=False):
@@ -2543,6 +2549,8 @@ class LoginTests(unittest.TestCase):
 
 @unittest.skipUnless(hasattr(os, 'getpriority') and hasattr(os, 'setpriority'),
                      "needs os.getpriority and os.setpriority")
+@unittest.skipIf(NEED_JOBCTL_AUTH,
+                 "Test needs user with *JOBCTL special authority on IBM i")
 class ProgramPriorityTests(unittest.TestCase):
     """Tests for os.getpriority() and os.setpriority()."""
 
