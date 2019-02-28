@@ -3986,6 +3986,10 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 
 # On some systems, setgroups is in unistd.h, on others, in grp.h
 AC_MSG_CHECKING(for setgroups)
+if test "$ac_sys_system" = "OS400"
+then
+  AC_MSG_RESULT(no)
+else
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <unistd.h>
 #ifdef HAVE_GRP_H
@@ -3996,6 +4000,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
    AC_MSG_RESULT(yes)],
   [AC_MSG_RESULT(no)
 ])
+fi
 
 # check for openpty and forkpty
 
