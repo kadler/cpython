@@ -37,6 +37,11 @@
 #include <sys/time.h>
 #endif
 
+#ifdef __PASE__
+#undef ITIMER_PROF
+#undef ITIMER_VIRTUAL
+#endif
+
 #if defined(HAVE_PTHREAD_SIGMASK) && !defined(HAVE_BROKEN_PTHREAD_SIGMASK)
 #  define PYPTHREAD_SIGMASK
 #endif
