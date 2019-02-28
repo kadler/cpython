@@ -5841,6 +5841,10 @@ PyInit__ctypes(void)
     PyModule_AddObject(m, "RTLD_LOCAL", PyLong_FromLong(RTLD_LOCAL));
     PyModule_AddObject(m, "RTLD_GLOBAL", PyLong_FromLong(RTLD_GLOBAL));
 
+#ifdef RTLD_MEMBER
+    PyModule_AddObject(m, "RTLD_MEMBER", PyLong_FromLong(RTLD_MEMBER));
+#endif
+
     PyExc_ArgError = PyErr_NewException("ctypes.ArgumentError", NULL, NULL);
     if (PyExc_ArgError) {
         Py_INCREF(PyExc_ArgError);
