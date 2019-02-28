@@ -86,6 +86,21 @@ mkpwent(struct passwd *p)
     if (v == NULL)
         return NULL;
 
+#ifdef __PASE__
+    // IBM i PASE may return NULL for certain values. This usually occurs when
+    // the current user does not have authority to the user profile. Too much
+    // stuff breaks when returning None, so change to empty strings instead
+    if(!p->pw_dir) {
+        p->pw_dir = "";
+    }
+    if(!p->pw_shell) {
+        p->pw_shell = "";
+    }
+    if(!p->pw_gecos) {
+        p->pw_gecos = "";
+    }
+#endif
+
 #define SETI(i,val) PyStructSequence_SET_ITEM(v, i, PyLong_FromLong((long) val))
 #define SETS(i,val) sets(v, i, val)
 
