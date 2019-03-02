@@ -387,6 +387,18 @@ static int win32_can_symlink = 0;
 #endif
 #endif
 
+#if defined(_AIX) && defined(__64BIT__)
+/* AIX wants you to use the 64-bit specific macros in 64-bit programs */
+/* Much easier to map them to the regular name instead */
+#undef makedev
+#undef major
+#undef minor
+
+#define makedev makedev64
+#define major major64
+#define minor minor64
+#endif
+
 #define DWORD_MAX 4294967295U
 
 #ifdef MS_WINDOWS
@@ -648,7 +660,12 @@ fail:
 #endif /* MS_WINDOWS */
 
 
+#ifdef _AIX
+/* AIX dev_t is unsigned */
+#define _PyLong_FromDev PyLong_FromUnsignedLongLong
+#else
 #define _PyLong_FromDev PyLong_FromLongLong
+#endif
 
 
 #if defined(HAVE_MKNOD) && defined(HAVE_MAKEDEV)
