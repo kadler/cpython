@@ -52,7 +52,7 @@ pipeline {
           --build=powerpc64-ibm-aix6  \
           --host=powerpc64-ibm-aix6
         '''
-        sh 'perl -p -i -e "s|ld_so_aix \\$(CC)|ld_so_aix \\$(CC) -maix${OBJECT_MODE}|" Makefile'
+        // sh 'perl -p -i -e "s|ld_so_aix \\$(CC)|ld_so_aix \\$(CC) -maix${OBJECT_MODE}|" Makefile'
       }
     }
     stage('build') {
