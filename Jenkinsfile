@@ -37,6 +37,7 @@ pipeline {
       }
       steps {
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
+        sh 'autoreconf'
         sh '''./configure \
           --config-cache \
           --with-system-expat \
