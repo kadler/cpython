@@ -411,7 +411,7 @@ then
 	ac_sys_release=
     else
 	ac_sys_system=`uname -s`
-	if test "$ac_sys_system" = "AIX" \
+	if test "$ac_sys_system" = "AIX" -o "$ac_sys_system" = "OS400" \
 	-o "$ac_sys_system" = "UnixWare" -o "$ac_sys_system" = "OpenUNIX"; then
 		ac_sys_release=`uname -v`
 	else
@@ -426,6 +426,7 @@ then
 
     case $MACHDEP in
 	aix*) MACHDEP="aix";;
+	os400*) MACHDEP="os400";;
 	linux*) MACHDEP="linux";;
 	cygwin*) MACHDEP="cygwin";;
 	darwin*) MACHDEP="darwin";;
@@ -1045,7 +1046,7 @@ AC_SUBST(EXPORTSYMS)
 AC_SUBST(EXPORTSFROM)
 AC_MSG_CHECKING(EXPORTSYMS)
 case $ac_sys_system in
-AIX*)
+AIX*|OS400*)
 	EXPORTSYMS="Modules/python.exp"
 	EXPORTSFROM=. # the main executable
 	;;
@@ -1169,7 +1170,7 @@ if test $enable_shared = "yes"; then
 	BLDLIBRARY='-L. -lpython$(LDVERSION)'
 	RUNSHARED=DYLD_LIBRARY_PATH=`pwd`${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}
 	;;
-    AIX*)
+    AIX*|OS400*)
 	LDLIBRARY='libpython$(LDVERSION).so'
 	RUNSHARED=LIBPATH=`pwd`${LIBPATH:+:${LIBPATH}}
 	;;
@@ -2330,7 +2331,7 @@ if test "$use_lfs" = "yes"; then
 # Two defines needed to enable largefile support on various platforms
 # These may affect some typedefs
 case $ac_sys_system/$ac_sys_release in
-  AIX*)
+  AIX*|OS400*)
     # Only define _LARGE_FILES on 32-bit builds. 64-bit AIX supports LFS
     # by default so it's unnecessary and, more importantly, due to the poor way
     # AIX implemented _LARGE_FILES, it can cause compile errors on 64-bit builds.
@@ -2600,9 +2601,17 @@ AC_MSG_CHECKING(LDSHARED)
 if test -z "$LDSHARED"
 then
 	case $ac_sys_system/$ac_sys_release in
-	AIX*)
-		BLDSHARED="Modules/ld_so_aix \$(CC) -bI:Modules/python.exp"
-		LDSHARED="\$(LIBPL)/ld_so_aix \$(CC) -bI:\$(LIBPL)/python.exp"
+	AIX*|OS400*)
+		# Ensure the configured object mode is used when building modules
+		bitmode=${OBJECT_MODE:-32}
+		if test "$GCC" = "yes" ; then
+			archflag="-maix$bitmode"
+		else
+			archflag="-q$bitmode"
+		fi
+
+		BLDSHARED="Modules/ld_so_aix \$(CC) $archflag -bI:Modules/python.exp"
+		LDSHARED="\$(LIBPL)/ld_so_aix \$(CC) $archflag -bI:\$(LIBPL)/python.exp"
 		;;
 	SunOS/5*)
 		if test "$GCC" = "yes" ; then
@@ -2757,7 +2766,7 @@ AC_MSG_CHECKING(LINKFORSHARED)
 if test -z "$LINKFORSHARED"
 then
 	case $ac_sys_system/$ac_sys_release in
-	AIX*)	LINKFORSHARED='-Wl,-bE:Modules/python.exp -lld';;
+	AIX*|OS400*)	LINKFORSHARED='-Wl,-bE:Modules/python.exp -lld';;
 	hp*|HP*)
 	    LINKFORSHARED="-Wl,-E -Wl,+s";;
 #	    LINKFORSHARED="-Wl,-E -Wl,+s -Wl,+b\$(BINLIBDEST)/lib-dynload";;
@@ -2903,7 +2912,7 @@ AC_CHECK_LIB(intl, textdomain,
 
 # checks for system dependent C++ extensions support
 case "$ac_sys_system" in
-	AIX*)	AC_MSG_CHECKING(for genuine AIX C++ extensions support)
+	AIX*|OS400*)	AC_MSG_CHECKING(for genuine AIX C++ extensions support)
 		AC_LINK_IFELSE([
 		  AC_LANG_PROGRAM([[#include <load.h>]],
 				  [[loadAndInit("", 0, "")]])
@@ -3309,7 +3318,7 @@ if test "$posix_threads" = "yes"; then
       SunOS/5.8) AC_DEFINE(HAVE_BROKEN_POSIX_SEMAPHORES, 1,
 		       [Define if the Posix semaphores do not work on your system])
 		       ;;
-      AIX/*) AC_DEFINE(HAVE_BROKEN_POSIX_SEMAPHORES, 1,
+      AIX/*|OS400/*) AC_DEFINE(HAVE_BROKEN_POSIX_SEMAPHORES, 1,
 		       [Define if the Posix semaphores do not work on your system])
 		       ;;
       esac
@@ -5540,7 +5549,7 @@ case "$ac_cv_computed_gotos" in yes*)
 esac
 
 case $ac_sys_system in
-AIX*)
+AIX*|OS400*)
   AC_DEFINE(HAVE_BROKEN_PIPE_BUF, 1, [Define if the system reports an invalid PIPE_BUF value.]) ;;
 esac
 

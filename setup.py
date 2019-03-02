@@ -81,6 +81,7 @@ MS_WINDOWS = (HOST_PLATFORM == 'win32')
 CYGWIN = (HOST_PLATFORM == 'cygwin')
 MACOS = (HOST_PLATFORM == 'darwin')
 AIX = (HOST_PLATFORM.startswith('aix'))
+OS400 = (HOST_PLATFORM == 'os400')
 VXWORKS = ('vxworks' in HOST_PLATFORM)
 
 
@@ -973,7 +974,7 @@ class PyBuildExt(build_ext):
             self.add(Extension('spwd', ['spwdmodule.c']))
         # AIX has shadow passwords, but access is not via getspent(), etc.
         # module support is not expected so it not 'missing'
-        elif not AIX:
+        elif not any((AIX, OS400)):
             self.missing.append('spwd')
 
         # select(2); not on ancient System V
@@ -1636,7 +1637,7 @@ class PyBuildExt(build_ext):
         # Platform-specific libraries
         if HOST_PLATFORM.startswith(('linux', 'freebsd', 'gnukfreebsd')):
             self.add(Extension('ossaudiodev', ['ossaudiodev.c']))
-        elif not AIX:
+        elif not any((AIX, OS400)):
             self.missing.append('ossaudiodev')
 
         if MACOS:
