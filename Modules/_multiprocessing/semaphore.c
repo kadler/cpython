@@ -9,6 +9,8 @@
 
 #include "multiprocessing.h"
 
+#define USE_UNNAMED_SEMAPHORES
+
 enum { RECURSIVE_MUTEX, SEMAPHORE };
 
 typedef struct {
@@ -185,8 +187,18 @@ semlock_release(SemLockObject *self, PyObject *args)
 
 #define SEM_CLEAR_ERROR()
 #define SEM_GET_LAST_ERROR() 0
+#ifdef USE_UNNAMED_SEMAPHORES
+static SEM_HANDLE SEM_CREATE(char* name, int val, int max) {
+    SEM_HANDLE ret = malloc(sizeof(sem_t));
+    if(sem_init(ret, 1, val))
+        return SEM_FAILED;
+    return ret;
+}
+#define SEM_CLOSE(sem) {sem_destroy(sem); free(sem);}
+#else
 #define SEM_CREATE(name, val, max) sem_open(name, O_CREAT | O_EXCL, 0600, val)
 #define SEM_CLOSE(sem) sem_close(sem)
+#endif
 #define SEM_GETVALUE(sem, pval) sem_getvalue(sem, pval)
 #define SEM_UNLINK(name) sem_unlink(name)
 
@@ -450,9 +462,10 @@ semlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* On Windows we should fail if GetLastError()==ERROR_ALREADY_EXISTS */
     if (handle == SEM_FAILED || SEM_GET_LAST_ERROR() != 0)
         goto failure;
-
+#ifndef USE_UNNAMED_SEMAPHORES
     if (unlink && SEM_UNLINK(name) < 0)
         goto failure;
+#endif
 
     result = newsemlockobject(type, handle, kind, maxvalue, name_copy);
     if (!result)
@@ -590,8 +603,10 @@ static PyMethodDef semlock_methods[] = {
      "get the value of the semaphore"},
     {"_is_zero", (PyCFunction)semlock_iszero, METH_NOARGS,
      "returns whether semaphore has value zero"},
+#ifndef USE_UNNAMED_SEMAPHORES
     {"_rebuild", (PyCFunction)semlock_rebuild, METH_VARARGS | METH_CLASS,
      ""},
+#endif
     {"_after_fork", (PyCFunction)semlock_afterfork, METH_NOARGS,
      "rezero the net acquisition count after fork()"},
     {NULL}
