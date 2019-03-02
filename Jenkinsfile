@@ -36,6 +36,7 @@ pipeline {
         ac_cv_func_utimensat = "no"
       }
       steps {
+        sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
         sh '''./configure \
           --config-cache \
           --with-system-expat \
