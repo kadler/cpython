@@ -667,6 +667,10 @@ def get_platform():
     elif osname[:3] == "aix":
         from _aix_support import aix_platform
         return aix_platform()
+    elif osname[:5] == "os400":
+        bitness = {2147483647:"powerpc", 9223372036854775807:"powerpc64"}
+        machine = bitness[sys.maxsize]
+        return "%s-%s" % (osname, machine)
     elif osname[:6] == "cygwin":
         osname = "cygwin"
         import re
