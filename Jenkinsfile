@@ -11,7 +11,8 @@ pipeline {
         OBJECT_MODE = '64'
         CC = 'gcc'
         CXX = 'g++'
-        CPPFLAGS = "-I/QOpenSys/pkgs/include/ncurses -D_ALL_SOURCE -D_XOPEN_SOURCE=700"
+        CPPFLAGS = "-I/QOpenSys/pkgs/include -I/QOpenSys/pkgs/include/ncurses -D_ALL_SOURCE -D_XOPEN_SOURCE=700"
+        LDFLAGS = '-L/QOpenSys/pkgs/lib'
         ARFLAGS="-X64 rc"
         ac_cv_func_clock_settime = "no"
         ac_cv_func_posix_fadvise = "no"
