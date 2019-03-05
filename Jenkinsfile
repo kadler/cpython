@@ -63,7 +63,7 @@ pipeline {
     }
     stage('test') {
       steps {
-        sh 'make buildbottest'
+        sh 'make EXTRATESTOPTS=-v buildbottest'
       }
     }
   }
