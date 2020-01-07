@@ -390,7 +390,7 @@ then
 	ac_sys_release=
     else
 	ac_sys_system=`uname -s`
-	if test "$ac_sys_system" = "AIX" \
+	if test "$ac_sys_system" = "AIX" -o "$ac_sys_system" = "OS400" \
 	-o "$ac_sys_system" = "UnixWare" -o "$ac_sys_system" = "OpenUNIX"; then
 		ac_sys_release=`uname -v`
 	else
@@ -1014,7 +1014,7 @@ if test -z "$LINKCC"
 then
 	LINKCC='$(PURIFY) $(MAINCC)'
 	case $ac_sys_system in
-	AIX*)
+	AIX*|OS400*)
 	   exp_extra="\"\""
 	   if test $ac_sys_release -ge 5 -o \
 		   $ac_sys_release -eq 4 -a `uname -r` -ge 2 ; then
@@ -1146,7 +1146,7 @@ if test $enable_shared = "yes"; then
 	BLDLIBRARY='-L. -lpython$(LDVERSION)'
 	RUNSHARED=DYLD_LIBRARY_PATH=`pwd`${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}
 	;;
-    AIX*)
+    AIX*|OS400*)
 	LDLIBRARY='libpython$(LDVERSION).so'
 	RUNSHARED=LIBPATH=`pwd`${LIBPATH:+:${LIBPATH}}
 	;;
@@ -1293,6 +1293,14 @@ else
   DEF_MAKE_RULE="all"
 fi
 
+AC_ARG_VAR(PROFILE_TASK, Python args for PGO generation task)
+AC_MSG_CHECKING(PROFILE_TASK)
+if test -z "$PROFILE_TASK"
+then
+	PROFILE_TASK='-m test --pgo'
+fi
+AC_MSG_RESULT($PROFILE_TASK)
+
 # Make llvm-relatec checks work on systems where llvm tools are not installed with their
 # normal names in the default $PATH (ie: Ubuntu).  They exist under the
 # non-suffixed name in their versioned llvm directory.
@@ -1330,7 +1338,7 @@ if test "$Py_LTO" = 'true' ; then
   case $CC in
     *clang*)
       AC_SUBST(LLVM_AR)
-      AC_PATH_TARGET_TOOL(LLVM_AR, llvm-ar, '', ${llvm_path})
+      AC_PATH_TOOL(LLVM_AR, llvm-ar, '', ${llvm_path})
       AC_SUBST(LLVM_AR_FOUND)
       if test -n "${LLVM_AR}" -a -x "${LLVM_AR}"
       then
@@ -1396,7 +1404,7 @@ AC_SUBST(LLVM_PROF_MERGER)
 AC_SUBST(LLVM_PROF_FILE)
 AC_SUBST(LLVM_PROF_ERR)
 AC_SUBST(LLVM_PROFDATA)
-AC_PATH_TARGET_TOOL(LLVM_PROFDATA, llvm-profdata, '', ${llvm_path})
+AC_PATH_TOOL(LLVM_PROFDATA, llvm-profdata, '', ${llvm_path})
 AC_SUBST(LLVM_PROF_FOUND)
 if test -n "${LLVM_PROFDATA}" -a -x "${LLVM_PROFDATA}"
 then
@@ -1779,6 +1787,26 @@ yes)
       CFLAGS_NODIST="$CFLAGS_NODIST -Werror=implicit-function-declaration"
     fi
 
+    AC_MSG_CHECKING(if we can use visibility in $CC)
+     ac_save_cc="$CC"
+     CC="$CC -fvisibility=hidden"
+     AC_CACHE_VAL(ac_cv_enable_visibility,
+       AC_COMPILE_IFELSE(
+         [
+	   AC_LANG_PROGRAM([[]], [[]])
+	 ],[
+           ac_cv_enable_visibility=yes
+	 ],[
+           ac_cv_enable_visibility=no
+	 ]))
+     CC="$ac_save_cc"
+    AC_MSG_RESULT($ac_cv_enable_visibility)
+
+    if test $ac_cv_enable_visibility = yes
+    then
+      CFLAGS_NODIST="$CFLAGS_NODIST -fvisibility=hidden"
+    fi
+
     # if using gcc on alpha, use -mieee to get (near) full IEEE 754
     # support.  Without this, treatment of subnormals doesn't follow
     # the standard.
@@ -2133,7 +2161,7 @@ sys/stat.h sys/syscall.h sys/sys_domain.h sys/termio.h sys/time.h \
 sys/times.h sys/types.h sys/uio.h sys/un.h sys/utsname.h sys/wait.h pty.h \
 libutil.h sys/resource.h netpacket/packet.h sysexits.h bluetooth.h \
 linux/tipc.h linux/random.h spawn.h util.h alloca.h endian.h \
-sys/endian.h sys/sysmacros.h linux/memfd.h sys/memfd.h sys/mman.h)
+sys/endian.h sys/sysmacros.h linux/memfd.h linux/wait.h sys/memfd.h sys/mman.h)
 AC_HEADER_DIRENT
 AC_HEADER_MAJOR
 
@@ -2244,10 +2272,15 @@ if test "$use_lfs" = "yes"; then
 # Two defines needed to enable largefile support on various platforms
 # These may affect some typedefs
 case $ac_sys_system/$ac_sys_release in
-AIX*)
-    AC_DEFINE(_LARGE_FILES, 1,
-    [This must be defined on AIX systems to enable large file support.])
-    ;;
+  AIX*|OS400*)
+    # Only define _LARGE_FILES on 32-bit builds. 64-bit AIX supports LFS
+    # by default so it's unnecessary and, more importantly, due to the poor way
+    # AIX implemented _LARGE_FILES, it causes compile errors on 64-bit builds.
+    if test "$ac_cv_sizeof_void_p" -eq 4; then
+      AC_DEFINE(_LARGE_FILES, 1,
+      [This must be defined on 32-bit AIX systems to enable large file support.])
+    fi
+;;
 esac
 AC_DEFINE(_LARGEFILE_SOURCE, 1,
 [This must be defined on some systems to enable large file support.])
@@ -2305,7 +2338,7 @@ if test "$ac_cv_sizeof_off_t" -gt "$ac_cv_sizeof_long" -a \
 	"$ac_cv_sizeof_long_long" -ge "$ac_cv_sizeof_off_t"; then
   AC_DEFINE(HAVE_LARGEFILE_SUPPORT, 1,
   [Defined to enable large file support when an off_t is bigger than a long
-   and long long is available and at least as big as an off_t. You may need
+   and long long is at least as big as an off_t. You may need
    to add some flags for configuration and compilation to enable this mode.
    (For Solaris and Linux, the necessary defines are already defined.)])
   AC_MSG_RESULT(yes)
@@ -2504,9 +2537,16 @@ AC_MSG_CHECKING(LDSHARED)
 if test -z "$LDSHARED"
 then
 	case $ac_sys_system/$ac_sys_release in
-	AIX*)
-		BLDSHARED="Modules/ld_so_aix \$(CC) -bI:Modules/python.exp"
-		LDSHARED="\$(LIBPL)/ld_so_aix \$(CC) -bI:\$(LIBPL)/python.exp"
+	AIX*|OS400*)
+		bitmode=${OBJECT_MODE:-32}
+		if test "$GCC" = "yes" ; then
+			archflag="-maix$bitmode"
+		else
+			archflag="-q$bitmode"
+		fi
+
+		BLDSHARED="Modules/ld_so_aix \$(CC) $archflag -bI:Modules/python.exp"
+		LDSHARED="\$(LIBPL)/ld_so_aix \$(CC) $archflag -bI:\$(LIBPL)/python.exp"
 		;;
 	SunOS/5*)
 		if test "$GCC" = "yes" ; then
@@ -2673,7 +2713,7 @@ AC_MSG_CHECKING(LINKFORSHARED)
 if test -z "$LINKFORSHARED"
 then
 	case $ac_sys_system/$ac_sys_release in
-	AIX*)	LINKFORSHARED='-Wl,-bE:Modules/python.exp -lld';;
+	AIX*|OS400*)	LINKFORSHARED='-Wl,-bE:Modules/python.exp -lld';;
 	hp*|HP*)
 	    LINKFORSHARED="-Wl,-E -Wl,+s";;
 #	    LINKFORSHARED="-Wl,-E -Wl,+s -Wl,+b\$(BINLIBDEST)/lib-dynload";;
@@ -2682,6 +2722,14 @@ then
 	# -u libsys_s pulls in all symbols in libsys
 	Darwin/*)
 		LINKFORSHARED="$extra_undefs -framework CoreFoundation"
+
+		# Issue #18075: the default maximum stack size (8MBytes) is too
+		# small for the default recursion limit. Increase the stack size
+		# to ensure that tests don't crash
+		# Note: This matches the value of THREAD_STACK_SIZE in
+		# thread_pthread.h
+		LINKFORSHARED="-Wl,-stack_size,1000000 $LINKFORSHARED"
+
 		if test "$enable_framework"
 		then
 			LINKFORSHARED="$LINKFORSHARED "'$(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
@@ -2811,7 +2859,7 @@ AC_CHECK_LIB(intl, textdomain,
 
 # checks for system dependent C++ extensions support
 case "$ac_sys_system" in
-	AIX*)	AC_MSG_CHECKING(for genuine AIX C++ extensions support)
+	AIX*|OS400*)	AC_MSG_CHECKING(for genuine AIX C++ extensions support)
 		AC_LINK_IFELSE([
 		  AC_LANG_PROGRAM([[#include <load.h>]],
 				  [[loadAndInit("", 0, "")]])
@@ -2822,7 +2870,17 @@ case "$ac_sys_system" in
 		  AC_MSG_RESULT(yes)
 		],[
 		  AC_MSG_RESULT(no)
-		]);;
+		])
+dnl The AIX_BUILDDATE is obtained from the kernel fileset - bos.mp64
+# BUILD_GNU_TYPE + AIX_BUILDDATE are used to construct the platform_tag
+# of the AIX system used to build/package Python executable. This tag serves
+# as a baseline for bdist module packages
+               AC_MSG_CHECKING(for the system builddate)
+               AIX_BUILDDATE=$(lslpp -Lcq bos.mp64 | awk -F:  '{ print $NF }')
+               AC_DEFINE_UNQUOTED([AIX_BUILDDATE], [$AIX_BUILDDATE],
+                   [BUILD_GNU_TYPE + AIX_BUILDDATE are used to construct the PEP425 tag of the build system.])
+               AC_MSG_RESULT($AIX_BUILDDATE)
+               ;;
 	*) ;;
 esac
 
@@ -3047,6 +3105,9 @@ then
     # Defining _REENTRANT on system with POSIX threads should not hurt.
     AC_DEFINE(_REENTRANT)
     posix_threads=yes
+    if test "$ac_sys_system" = "SunOS"; then
+        CFLAGS="$CFLAGS -D_REENTRANT"
+    fi
 elif test "$ac_cv_kpthread" = "yes"
 then
     CC="$CC -Kpthread"
@@ -3147,7 +3208,7 @@ if test "$posix_threads" = "yes"; then
       SunOS/5.8) AC_DEFINE(HAVE_BROKEN_POSIX_SEMAPHORES, 1,
 		       [Define if the Posix semaphores do not work on your system])
 		       ;;
-      AIX/*) AC_DEFINE(HAVE_BROKEN_POSIX_SEMAPHORES, 1,
+      AIX/*|OS400*) AC_DEFINE(HAVE_BROKEN_POSIX_SEMAPHORES, 1,
 		       [Define if the Posix semaphores do not work on your system])
 		       ;;
       esac
@@ -3478,7 +3539,7 @@ AC_MSG_CHECKING(DYNLOADFILE)
 if test -z "$DYNLOADFILE"
 then
 	case $ac_sys_system/$ac_sys_release in
-	AIX*) # Use dynload_shlib.c and dlopen() if we have it; otherwise dynload_aix.c
+	AIX*|OS400*) # Use dynload_shlib.c and dlopen() if we have it; otherwise dynload_aix.c
 	if test "$ac_cv_func_dlopen" = yes
 	then DYNLOADFILE="dynload_shlib.o"
 	else DYNLOADFILE="dynload_aix.o"
@@ -3522,13 +3583,13 @@ fi
 AC_CHECK_FUNCS(alarm accept4 setitimer getitimer bind_textdomain_codeset chown \
  clock confstr copy_file_range ctermid dup3 execv explicit_bzero explicit_memset \
  faccessat fchmod fchmodat fchown fchownat \
- fexecve fdopendir fork fpathconf fstatat ftime ftruncate futimesat \
+ fdwalk fexecve fdopendir fork fpathconf fstatat ftime ftruncate futimesat \
  futimens futimes gai_strerror getentropy \
  getgrgid_r getgrnam_r \
  getgrouplist getgroups getlogin getloadavg getpeername getpgid getpid \
  getpriority getresuid getresgid getpwent getpwnam_r getpwuid_r getspnam getspent getsid getwd \
  if_nameindex \
- initgroups kill killpg lchmod lchown lockf linkat lstat lutimes mmap \
+ initgroups kill killpg lchown lockf linkat lstat lutimes mmap \
  memrchr mbrtowc mkdirat mkfifo \
  madvise mkfifoat mknod mknodat mktime mremap nice openat pathconf pause pipe2 plock poll \
  posix_fallocate posix_fadvise posix_spawn posix_spawnp pread preadv preadv2 \
@@ -3848,15 +3909,6 @@ AC_CHECK_FUNCS(setpgrp,
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]], [[setpgrp(0,0);]])],
     [AC_DEFINE(SETPGRP_HAVE_ARG, 1, [Define if setpgrp() must be called as setpgrp(0, 0).])],
     [])
-)
-AC_CHECK_FUNCS(gettimeofday,
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/time.h>]],
-  				     [[gettimeofday((struct timeval*)0,(struct timezone*)0);]])],
-    [],
-    [AC_DEFINE(GETTIMEOFDAY_NO_TZ, 1,
-      [Define if gettimeofday() does not have second (timezone) argument
-       This is the case on Motorola V4 (R40V4.2)])
-    ])
 )
 
 # We search for both crypt and crypt_r as one or the other may be defined
@@ -5273,7 +5325,7 @@ case "$ac_cv_computed_gotos" in yes*)
 esac
 
 case $ac_sys_system in
-AIX*)
+AIX*|OS400*)
   AC_DEFINE(HAVE_BROKEN_PIPE_BUF, 1, [Define if the system reports an invalid PIPE_BUF value.]) ;;
 esac
 
@@ -5384,9 +5436,12 @@ AC_LINK_IFELSE(
 [
   AC_LANG_SOURCE([[
     #include <stdatomic.h>
-    atomic_int value = ATOMIC_VAR_INIT(1);
+    atomic_int int_var;
+    atomic_uintptr_t uintptr_var;
     int main() {
-      int loaded_value = atomic_load(&value);
+      atomic_store_explicit(&int_var, 5, memory_order_relaxed);
+      atomic_store_explicit(&uintptr_var, 0, memory_order_relaxed);
+      int loaded_value = atomic_load_explicit(&int_var, memory_order_seq_cst);
       return 0;
     }
   ]])
@@ -5396,7 +5451,7 @@ AC_MSG_RESULT($have_stdatomic_h)
 
 if test "$have_stdatomic_h" = yes; then
     AC_DEFINE(HAVE_STD_ATOMIC, 1,
-              [Has stdatomic.h with atomic_int])
+              [Has stdatomic.h with atomic_int and atomic_uintptr_t])
 fi
 
 # Check for GCC >= 4.7 __atomic builtins

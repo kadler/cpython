@@ -140,13 +140,13 @@ aix_loaderror(const char *pathname)
             if (nerr == load_errtab[j].errNo && load_errtab[j].errstr)
             ERRBUF_APPEND(load_errtab[j].errstr);
         }
-        while (Py_ISDIGIT(Py_CHARMASK(*message[i]))) message[i]++ ;
+        while (Py_ISDIGIT(*message[i])) message[i]++ ;
         ERRBUF_APPEND(message[i]);
         ERRBUF_APPEND("\n");
     }
     errbuf[strlen(errbuf)-1] = '\0';            /* trim off last newline */
-    pathname_ob = PyUnicode_FromString(pathname);
-    errbuf_ob = PyUnicode_FromString(errbuf);
+    pathname_ob = PyUnicode_DecodeLocale(pathname, NULL);
+    errbuf_ob = PyUnicode_DecodeLocale(errbuf, NULL);
     PyErr_SetImportError(errbuf_ob, NULL, pathname);
     Py_DECREF(pathname_ob);
     Py_DECREF(errbuf_ob);

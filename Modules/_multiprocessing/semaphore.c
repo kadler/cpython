@@ -614,8 +614,10 @@ static PyMethodDef semlock_methods[] = {
      "get the value of the semaphore"},
     {"_is_zero", (PyCFunction)semlock_iszero, METH_NOARGS,
      "returns whether semaphore has value zero"},
+#ifndef USE_UNNAMED_SEMAPHORES
     {"_rebuild", (PyCFunction)semlock_rebuild, METH_VARARGS | METH_CLASS,
      ""},
+#endif
     {"_after_fork", (PyCFunction)semlock_afterfork, METH_NOARGS,
      "rezero the net acquisition count after fork()"},
     {NULL}

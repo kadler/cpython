@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/QOpenSys/usr/bin/sh
 #
 # ===========================================================================
 # FILE:         makexp_aix
 # TYPE:         standalone executable
-# SYSTEM:	AIX 3.2.5 and AIX 4
+# SYSTEM: AIX 3.2.5 and AIX 4
 #
 # DESCRIPTION:  This script creates an export list of ALL global symbols
 #               from a list of object or archive files.
@@ -18,8 +18,8 @@
 #                      <InputFile> is an object (.o) or an archive file (.a).
 #
 # HISTORY:
-#		3-Apr-1998  -- remove C++ entries of the form Class::method
-#		Vladimir Marangozov
+#  3-Apr-1998  -- remove C++ entries of the form Class::method
+#  Vladimir Marangozov
 #
 #               1-Jul-1996  -- added header information
 #               Vladimir Marangozov
@@ -32,21 +32,18 @@
 expFileName=$1
 toAppendStr=$2
 shift; shift;
-inputFiles=$*
-automsg="Generated automatically by makexp_aix"
-notemsg="NOTE: lists _all_ global symbols defined in the above file(s)."
-curwdir=`pwd`
 
+# run in a sub-shell so the output is written atomically
+(
 # Create the export file and setup the header info
-echo "#!"$toAppendStr > $expFileName
-echo "*" >> $expFileName
-echo "* $automsg  (`date -u`)" >> $expFileName
-echo "*" >> $expFileName
-echo "* Base Directory: $curwdir" >> $expFileName
-echo "* Input File(s) : $inputFiles" >> $expFileName
-echo "*" >> $expFileName
-echo "* $notemsg" >> $expFileName
-echo "*" >> $expFileName
+echo "#!"$toAppendStr
+echo "*"
+echo "* Generated automatically by makexp_aix  (`date -u`)"
+echo "*"
+echo "* Input File(s) : $*"
+echo "*"
+echo "* NOTE: lists _all_ global symbols defined in the above file(s)."
+echo "*"
 
 # Extract the symbol list using 'nm' which produces quite
 # different output under AIX 4 than under AIX 3.2.5.
@@ -71,11 +68,7 @@ echo "*" >> $expFileName
 # 7. Eliminate all entries containing two colons, like Class::method
 #
 
-# Use -X32_64 if it appears to be implemented in this version of 'nm'.
-NM=/usr/ccs/bin/nm
-xopt=-X32_64
-$NM -e $xopt $1 >/dev/null 2>&1 || xopt=""
-
-$NM -Bex $xopt $inputFiles					\
-| sed -e '/ [^BDT] /d' -e '/\./d' -e 's/.* [BDT] //' -e '/::/d'	\
-| sort | uniq >> $expFileName
+/QOpenSys/usr/bin/nm -Bex -X32_64 $* \
+| sed -e '/ [^BDT] /d' -e '/\./d' -e 's/.* [BDT] //' -e '/::/d' \
+| sort | uniq
+) > $expFileName
