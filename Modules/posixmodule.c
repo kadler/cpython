@@ -401,6 +401,10 @@ static int win32_can_symlink = 0;
 
 #define DWORD_MAX 4294967295U
 
+#if defined(O_CLOEXEC) && O_CLOEXEC > 0xFFFFFFFF
+#undef O_CLOEXEC
+#endif
+
 #ifdef MS_WINDOWS
 #define INITFUNC PyInit_nt
 #define MODNAME "nt"
