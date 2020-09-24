@@ -192,7 +192,7 @@ fileio_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *) self;
 }
 
-#ifdef O_CLOEXEC
+#if defined(O_CLOEXEC) && O_CLOEXEC <= 0xFFFFFFFF
 extern int _Py_open_cloexec_works;
 #endif
 
@@ -235,7 +235,7 @@ _io_FileIO___init___impl(fileio *self, PyObject *nameobj, const char *mode,
     int flags = 0;
     int fd = -1;
     int fd_is_own = 0;
-#ifdef O_CLOEXEC
+#if defined(O_CLOEXEC) && O_CLOEXEC <= 0xFFFFFFFF
     int *atomic_flag_works = &_Py_open_cloexec_works;
 #elif !defined(MS_WINDOWS)
     int *atomic_flag_works = NULL;
