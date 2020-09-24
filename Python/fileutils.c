@@ -21,7 +21,7 @@ extern int winerror_to_errno(int);
 #include <fcntl.h>
 #endif /* HAVE_FCNTL_H */
 
-#ifdef O_CLOEXEC
+#ifdef O_CLOEXEC && O_CLOEXEC <= 0xFFFFFFFF
 /* Does open() support the O_CLOEXEC flag? Possible values:
 
    -1: unknown
@@ -1266,7 +1266,7 @@ _Py_open_impl(const char *pathname, int flags, int gil_held)
 
 #ifdef MS_WINDOWS
     flags |= O_NOINHERIT;
-#elif defined(O_CLOEXEC)
+#elif defined(O_CLOEXEC) && O_CLOEXEC <= 0xFFFFFFFF
     atomic_flag_works = &_Py_open_cloexec_works;
     flags |= O_CLOEXEC;
 #else

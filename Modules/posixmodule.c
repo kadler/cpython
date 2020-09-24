@@ -397,6 +397,10 @@ extern char        *ctermid_r(char *);
 #define minor minor64
 #endif
 
+#if defined(O_CLOEXEC) && O_CLOEXEC > 0xFFFFFFFF
+#undef O_CLOEXEC
+#endif
+
 #ifdef MS_WINDOWS
 #define INITFUNC PyInit_nt
 #define MODNAME "nt"
