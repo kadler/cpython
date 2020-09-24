@@ -14871,7 +14871,7 @@ all_ins(PyObject *m)
     /* Must be a directory.      */
     if (PyModule_AddIntMacro(m, O_DIRECTORY)) return -1;
 #endif
-#ifdef O_NOFOLLOW
+#if defined(O_NOFOLLOW) && O_NOFOLLOW <= 0xFFFFFFFF
     /* Do not follow links.      */
     if (PyModule_AddIntMacro(m, O_NOFOLLOW)) return -1;
 #endif
