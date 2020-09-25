@@ -30,6 +30,11 @@
 #endif /* MS_WINDOWS */
 #endif /* !__WATCOMC__ || __QNX__ */
 
+#ifdef __PASE__
+#undef CLOCK_PROCESS_CPUTIME_ID
+#undef CLOCK_THREAD_CPUTIME_ID
+#endif
+
 /* Forward declarations */
 static int pysleep(_PyTime_t);
 static PyObject* floattime(_Py_clock_info_t *info);
