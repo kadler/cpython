@@ -62,6 +62,11 @@
 
 #define SEC_TO_NS (1000 * 1000 * 1000)
 
+#ifdef __PASE__
+#undef CLOCK_PROCESS_CPUTIME_ID
+#undef CLOCK_THREAD_CPUTIME_ID
+#endif
+
 /* Forward declarations */
 static int pysleep(_PyTime_t);
 
