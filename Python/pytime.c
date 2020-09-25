@@ -721,12 +721,16 @@ py_get_system_clock(_PyTime_t *tp, _Py_clock_info_t *info, int raise)
         info->implementation = "clock_gettime(CLOCK_REALTIME)";
         info->monotonic = 0;
         info->adjustable = 1;
+#ifdef __PASE__
+        info->resolution = 1e-3;
+#else
         if (clock_getres(CLOCK_REALTIME, &res) == 0) {
             info->resolution = res.tv_sec + res.tv_nsec * 1e-9;
         }
         else {
             info->resolution = 1e-9;
         }
+#endif
     }
 
 #ifdef HAVE_CLOCK_GETTIME_RUNTIME
@@ -937,11 +941,15 @@ py_get_monotonic_clock(_PyTime_t *tp, _Py_clock_info_t *info, int raise)
         info->monotonic = 1;
         info->implementation = implementation;
         info->adjustable = 0;
+#ifdef __PASE__
+        info->resolution = 1e-3;
+#else
         if (clock_getres(clk_id, &res) != 0) {
             PyErr_SetFromErrno(PyExc_OSError);
             return -1;
         }
         info->resolution = res.tv_sec + res.tv_nsec * 1e-9;
+#endif
     }
     if (pytime_fromtimespec(tp, &ts, raise) < 0) {
         return -1;
