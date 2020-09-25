@@ -516,6 +516,16 @@ extern char        *ctermid_r(char *);
 #undef O_CLOEXEC
 #endif
 
+#if defined(__PASE__) && defined(O_SEARCH)
+/* O_SEARCH is not supported by PASE */
+#undef O_SEARCH
+
+/* Unfortunately, O_SEARCH is used in defining O_ACCMODE when _XOPEN_SOURCE >= 700 */
+/* Redefine it based on the non _XOPEN_SOURCE>=700 definition */
+#undef O_ACCMODE
+#define O_ACCMODE (O_RDONLY | O_WRONLY | O_RDWR)
+#endif
+
 #ifdef MS_WINDOWS
 #  define INITFUNC PyInit_nt
 #  define MODNAME "nt"
