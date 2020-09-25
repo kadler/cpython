@@ -281,11 +281,16 @@ time_clock_getres(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "i:clock_getres", &clk_id))
         return NULL;
 
+#ifdef __PASE__
+    tp.tv_sec = 0;
+    tp.tv_nsec = 1e+6;
+#else
     ret = clock_getres((clockid_t)clk_id, &tp);
     if (ret != 0) {
         PyErr_SetFromErrno(PyExc_OSError);
         return NULL;
     }
+#endif
 
     return PyFloat_FromDouble(tp.tv_sec + tp.tv_nsec * 1e-9);
 }
@@ -1362,11 +1367,15 @@ _PyTime_GetThreadTimeWithInfo(_PyTime_t *tp, _Py_clock_info_t *info)
         info->implementation = function;
         info->monotonic = 1;
         info->adjustable = 0;
+#ifdef __PASE__
+        info->resolution = 1e-3;
+#else
         if (clock_getres(clk_id, &res)) {
             PyErr_SetFromErrno(PyExc_OSError);
             return -1;
         }
         info->resolution = res.tv_sec + res.tv_nsec * 1e-9;
+#endif
     }
 
     if (_PyTime_FromTimespec(tp, &ts) < 0) {
