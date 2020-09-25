@@ -15,6 +15,7 @@ pipeline {
         LDFLAGS = '-L/QOpenSys/pkgs/lib'
         LDFLAGS_NODIST = '-lutil'
         ARFLAGS="-X64 rc"
+        CCSHARED = '-fPIC'
         ac_cv_func_clock_settime = "no"
         ac_cv_func_posix_fadvise = "no"
         ac_cv_func_posix_fallocate = "no"
@@ -47,7 +48,7 @@ pipeline {
           --with-ensurepip=no \
           --with-tcltk-includes="$(pkg-config --cflags tk)" \
           --with-tcltk-libs="$(pkg-config --libs tk)" \
-          --without-computed-gotos \
+          --with-computed-gotos \
           --enable-ipv6 \
           --enable-loadable-sqlite-extensions \
           --enable-shared \
