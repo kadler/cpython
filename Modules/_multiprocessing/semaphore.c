@@ -9,7 +9,7 @@
 
 #include "multiprocessing.h"
 
-#define USE_UNNAMED_SEMAPHORES // can't share named semaphore across fork, so use unnamed instead
+#define USE_UNNAMED_SEMAPHORES
 
 enum { RECURSIVE_MUTEX, SEMAPHORE };
 
@@ -195,13 +195,12 @@ static SEM_HANDLE SEM_CREATE(char* name, int val, int max) {
     return ret;
 }
 #define SEM_CLOSE(sem) {sem_destroy(sem); free(sem);}
-#define SEM_UNLINK(name) 0
 #else
 #define SEM_CREATE(name, val, max) sem_open(name, O_CREAT | O_EXCL, 0600, val)
 #define SEM_CLOSE(sem) sem_close(sem)
-#define SEM_UNLINK(name) sem_unlink(name)
 #endif
 #define SEM_GETVALUE(sem, pval) sem_getvalue(sem, pval)
+#define SEM_UNLINK(name) sem_unlink(name)
 
 /* OS X 10.4 defines SEM_FAILED as -1 instead of (sem_t *)-1;  this gives
    compiler warnings, and (potentially) undefined behaviour. */
@@ -473,7 +472,7 @@ semlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* On Windows we should fail if GetLastError()==ERROR_ALREADY_EXISTS */
     if (handle == SEM_FAILED || SEM_GET_LAST_ERROR() != 0)
         goto failure;
-#ifndef USE_UNNAMED_SEMAPHORES // no need to sem_unlink an unnamed semaphore (it would fail anyway)
+#ifndef USE_UNNAMED_SEMAPHORES
     if (unlink && SEM_UNLINK(name) < 0)
         goto failure;
 #endif
@@ -512,7 +511,7 @@ semlock_rebuild(PyTypeObject *type, PyObject *args)
         strcpy(name_copy, name);
     }
 
-#if !defined(MS_WINDOWS) && !defined(USE_UNNAMED_SEMAPHORES) // if we're using unnamed, then we got it via fork, can't sem_open
+#ifndef MS_WINDOWS
     if (name != NULL) {
         handle = sem_open(name, 0);
         if (handle == SEM_FAILED) {
