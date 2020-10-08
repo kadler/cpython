@@ -1,7 +1,7 @@
 pipeline {
   agent {
     node {
-      label 'ibmi7.2'
+      label 'ibmi7.2-debug'
     }
 
   }
