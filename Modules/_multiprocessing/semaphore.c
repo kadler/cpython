@@ -9,6 +9,8 @@
 
 #include "multiprocessing.h"
 
+#define USE_UNNAMED_SEMAPHORES // can't share named semaphore across fork, so use unnamed instead
+
 enum { RECURSIVE_MUTEX, SEMAPHORE };
 
 typedef struct {
@@ -29,8 +31,6 @@ typedef struct {
 /*
  * Windows definitions
  */
-
-#define USING_UNNAMED_SEMAPHORES
 
 #define SEM_FAILED NULL
 
@@ -185,29 +185,16 @@ semlock_release(SemLockObject *self, PyObject *args)
  * Unix definitions
  */
 
-#ifdef __PASE__
-// PASE doesn't support sharing named semaphores across forks
-// Use unnamed semaphores like Windows does
-#define USING_UNNAMED_SEMAPHORES
-#endif
-
 #define SEM_CLEAR_ERROR()
 #define SEM_GET_LAST_ERROR() 0
-
-#ifdef USING_UNNAMED_SEMAPHORES
-static SEM_HANDLE SEM_CREATE(__attribute__ ((unused)) const char* name, int val, int max) {
-    SEM_HANDLE ret = PyMem_Malloc(sizeof(sem_t));
-    if(sem_init(ret, 1, val)) {
-        PyMem_Free(ret);
+#ifdef USE_UNNAMED_SEMAPHORES
+static SEM_HANDLE SEM_CREATE(char* name, int val, int max) {
+    SEM_HANDLE ret = malloc(sizeof(sem_t));
+    if(sem_init(ret, 1, val))
         return SEM_FAILED;
-    }
     return ret;
 }
-static SEM_CLOSE(SEM_HANDLE sem) {
-    int rc = sem_destroy(sem);
-    PyMem_Free(sem);
-    return rc;
-}
+#define SEM_CLOSE(sem) {sem_destroy(sem); free(sem);}
 #define SEM_UNLINK(name) 0
 #else
 #define SEM_CREATE(name, val, max) sem_open(name, O_CREAT | O_EXCL, 0600, val)
@@ -486,7 +473,7 @@ semlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* On Windows we should fail if GetLastError()==ERROR_ALREADY_EXISTS */
     if (handle == SEM_FAILED || SEM_GET_LAST_ERROR() != 0)
         goto failure;
-#ifndef USING_UNNAMED_SEMAPHORES
+#ifndef USE_UNNAMED_SEMAPHORES // no need to sem_unlink an unnamed semaphore (it would fail anyway)
     if (unlink && SEM_UNLINK(name) < 0)
         goto failure;
 #endif
@@ -525,7 +512,7 @@ semlock_rebuild(PyTypeObject *type, PyObject *args)
         strcpy(name_copy, name);
     }
 
-#ifndef USING_UNNAMED_SEMAPHORES
+#if !defined(MS_WINDOWS) && !defined(USE_UNNAMED_SEMAPHORES) // if we're using unnamed, then we got it via fork, can't sem_open
     if (name != NULL) {
         handle = sem_open(name, 0);
         if (handle == SEM_FAILED) {
@@ -627,8 +614,10 @@ static PyMethodDef semlock_methods[] = {
      "get the value of the semaphore"},
     {"_is_zero", (PyCFunction)semlock_iszero, METH_NOARGS,
      "returns whether semaphore has value zero"},
+#ifndef USE_UNNAMED_SEMAPHORES
     {"_rebuild", (PyCFunction)semlock_rebuild, METH_VARARGS | METH_CLASS,
      ""},
+#endif
     {"_after_fork", (PyCFunction)semlock_afterfork, METH_NOARGS,
      "rezero the net acquisition count after fork()"},
     {NULL}
@@ -707,12 +696,10 @@ _PyMp_sem_unlink(PyObject *ignore, PyObject *args)
     if (!PyArg_ParseTuple(args, "s", &name))
         return NULL;
 
-#ifndef USING_UNNAMED_SEMAPHORES
     if (SEM_UNLINK(name) < 0) {
         _PyMp_SetError(NULL, MP_STANDARD_ERROR);
         return NULL;
     }
-#endif
 
     Py_RETURN_NONE;
 }
