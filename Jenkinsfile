@@ -65,7 +65,7 @@ pipeline {
     }
     stage('test') {
       steps {
-        timeout(20) {
+        timeout(40) {
           sh 'make EXTRATESTOPTS=-v buildbottest'
         }
       }
