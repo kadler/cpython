@@ -19,9 +19,12 @@ pipeline {
         ac_cv_func_clock_settime = "no"
         ac_cv_func_posix_fadvise = "no"
         ac_cv_func_posix_fallocate = "no"
+        ac_cv_func_sched_get_priority_max = "no"
         ac_cv_func_sched_rr_get_interval = "no"
+        ac_cv_func_sched_setaffinity = "no"
         ac_cv_func_sched_setparam = "no"
         ac_cv_func_sched_setscheduler = "no"
+        ac_cv_func_fexecve = "no"
         ac_cv_func_faccessat = "no"
         ac_cv_func_fchmodat = "no"
         ac_cv_func_fchownat = "no"
@@ -37,6 +40,9 @@ pipeline {
         ac_cv_func_symlinkat = "no"
         ac_cv_func_unlinkat = "no"
         ac_cv_func_utimensat = "no"
+        ac_cv_func_shm_open = "no"
+        ac_cv_func_shm_unlink = "no"
+        ac_cv_func_setregid = "no"
       }
       steps {
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
