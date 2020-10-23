@@ -35,7 +35,6 @@ _CLEANUP_FUNCS = {
 
 if os.name == 'posix':
     import _multiprocessing
-    import _posixshmem
 
     # Use sem_unlink() to clean up named semaphores.
     #
@@ -46,9 +45,16 @@ if os.name == 'posix':
         _CLEANUP_FUNCS.update({
             'semaphore': _multiprocessing.sem_unlink,
         })
-    _CLEANUP_FUNCS.update({
-        'shared_memory': _posixshmem.shm_unlink,
-    })
+
+    try:
+        import _posixshmem
+
+        _CLEANUP_FUNCS.update({
+            'shared_memory': _posixshmem.shm_unlink,
+        })
+    except ImportError:
+        pass
+
 
 
 class ResourceTracker(object):
