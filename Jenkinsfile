@@ -37,6 +37,8 @@ pipeline {
         ac_cv_func_symlinkat = "no"
         ac_cv_func_unlinkat = "no"
         ac_cv_func_utimensat = "no"
+        ac_cv_func_shm_open = "no"
+        ac_cv_func_shm_unlink = "no"
       }
       steps {
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
