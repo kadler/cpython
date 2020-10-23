@@ -35,12 +35,20 @@ _CLEANUP_FUNCS = {
 
 if os.name == 'posix':
     import _multiprocessing
-    import _posixshmem
 
     _CLEANUP_FUNCS.update({
         'semaphore': _multiprocessing.sem_unlink,
-        'shared_memory': _posixshmem.shm_unlink,
     })
+
+    try:
+        import _posixshmem
+
+        _CLEANUP_FUNCS.update({
+            'shared_memory': _posixshmem.shm_unlink,
+        })
+    except ImportError:
+        pass
+
 
 
 class ResourceTracker(object):
