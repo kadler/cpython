@@ -37,7 +37,7 @@ if sys.platform.startswith("linux"):
         # TODO: Once https://bugs.python.org/issue30672 is addressed, we'll be
         #       able to check this case unconditionally
         EXPECTED_C_LOCALE_EQUIVALENTS.append("POSIX")
-elif sys.platform.startswith("aix"):
+elif sys.platform in ("aix", "os400"):
     # AIX uses iso8859-1 in the C locale, other *nix platforms use ASCII
     EXPECTED_C_LOCALE_STREAM_ENCODING = "iso8859-1"
     EXPECTED_C_LOCALE_FS_ENCODING = "iso8859-1"
