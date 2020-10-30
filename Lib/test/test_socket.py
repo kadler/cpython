@@ -41,6 +41,7 @@ MSG = 'Michael Gilfix was here\u1234\r\n'.encode('utf-8')
 
 VSOCKPORT = 1234
 AIX = platform.system() == "AIX"
+OS400 = platform.system() == "OS400"
 
 try:
     import _socket
@@ -1233,7 +1234,7 @@ class GeneralModuleTests(unittest.TestCase):
         self.assertEqual(b'\x01\x02\x03\x04', f('1.2.3.4'))
         self.assertEqual(b'\xff\xff\xff\xff', f('255.255.255.255'))
         # bpo-29972: inet_pton() doesn't fail on AIX
-        if not AIX:
+        if not AIX and not OS400:
             assertInvalid(f, '0.0.0.')
         assertInvalid(f, '300.0.0.0')
         assertInvalid(f, 'a.0.0.0')
@@ -1293,7 +1294,7 @@ class GeneralModuleTests(unittest.TestCase):
         assertInvalid('1:2:3:4:5:6:')
         assertInvalid('1:2:3:4:5:6:7:8:0')
         # bpo-29972: inet_pton() doesn't fail on AIX
-        if not AIX:
+        if not AIX and not OS400:
             assertInvalid('1:2:3:4:5:6:7:8:')
 
         self.assertEqual(b'\x00' * 12 + b'\xfe\x2a\x17\x40',
@@ -1737,7 +1738,7 @@ class GeneralModuleTests(unittest.TestCase):
 
     @unittest.skipUnless(socket_helper.IPV6_ENABLED, 'IPv6 required for this test.')
     @unittest.skipIf(sys.platform == 'win32', 'does not work on Windows')
-    @unittest.skipIf(AIX, 'Symbolic scope id does not work')
+    @unittest.skipIf(AIX or OS400, 'Symbolic scope id does not work')
     def test_getaddrinfo_ipv6_scopeid_symbolic(self):
         # Just pick up any network interface (Linux, Mac OS X)
         (ifindex, test_interface) = socket.if_nameindex()[0]
@@ -1769,7 +1770,7 @@ class GeneralModuleTests(unittest.TestCase):
 
     @unittest.skipUnless(socket_helper.IPV6_ENABLED, 'IPv6 required for this test.')
     @unittest.skipIf(sys.platform == 'win32', 'does not work on Windows')
-    @unittest.skipIf(AIX, 'Symbolic scope id does not work')
+    @unittest.skipIf(AIX or OS400, 'Symbolic scope id does not work')
     def test_getnameinfo_ipv6_scopeid_symbolic(self):
         # Just pick up any network interface.
         (ifindex, test_interface) = socket.if_nameindex()[0]
@@ -4342,13 +4343,13 @@ class SendrecvmsgSCTPStreamTestBase(SendrecvmsgSCTPFlagsBase,
     pass
 
 @requireAttrs(socket.socket, "sendmsg")
-@unittest.skipIf(AIX, "IPPROTO_SCTP: [Errno 62] Protocol not supported on AIX")
+@unittest.skipIf(AIX or OS400, "IPPROTO_SCTP: [Errno 62] Protocol not supported on AIX")
 @requireSocket("AF_INET", "SOCK_STREAM", "IPPROTO_SCTP")
 class SendmsgSCTPStreamTest(SendmsgStreamTests, SendrecvmsgSCTPStreamTestBase):
     pass
 
 @requireAttrs(socket.socket, "recvmsg")
-@unittest.skipIf(AIX, "IPPROTO_SCTP: [Errno 62] Protocol not supported on AIX")
+@unittest.skipIf(AIX or OS400, "IPPROTO_SCTP: [Errno 62] Protocol not supported on AIX")
 @requireSocket("AF_INET", "SOCK_STREAM", "IPPROTO_SCTP")
 class RecvmsgSCTPStreamTest(RecvmsgTests, RecvmsgGenericStreamTests,
                             SendrecvmsgSCTPStreamTestBase):

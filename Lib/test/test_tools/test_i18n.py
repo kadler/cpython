@@ -90,7 +90,7 @@ class Test_pygettext(unittest.TestCase):
 
             #"Plural-Forms" is optional
 
-    @unittest.skipIf(sys.platform.startswith('aix'),
+    @unittest.skipIf(sys.platform in ('aix', 'os400'),
                      'bpo-29972: broken test on AIX')
     def test_POT_Creation_Date(self):
         """ Match the date format from xgettext for POT-Creation-Date """
