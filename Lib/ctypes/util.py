@@ -80,7 +80,9 @@ elif os.name == "posix" and sys.platform == "darwin":
                 continue
         return None
 
-elif sys.platform.startswith("aix"):
+elif sys.platform in ("aix", "os400"):
+    # TODO: Probably need to adjust here
+
     # AIX has two styles of storing shared libraries
     # GNU auto_tools refer to these as svr4 and aix
     # svr4 (System V Release 4) is a regular file, often with .so as suffix
@@ -334,7 +336,7 @@ def test():
             print(cdll.LoadLibrary("libSystem.dylib"))
             print(cdll.LoadLibrary("System.framework/System"))
         # issue-26439 - fix broken test call for AIX
-        elif sys.platform.startswith("aix"):
+        elif sys.platform in ("aix", "os400"):
             from ctypes import CDLL
             if sys.maxsize < 2**32:
                 print(f"Using CDLL(name, os.RTLD_MEMBER): {CDLL('libc.a(shr.o)', os.RTLD_MEMBER)}")

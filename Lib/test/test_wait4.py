@@ -16,7 +16,7 @@ support.get_attribute(os, 'wait4')
 class Wait4Test(ForkWait):
     def wait_impl(self, cpid):
         option = os.WNOHANG
-        if sys.platform.startswith('aix'):
+        if sys.platform in ('aix', 'os400'):
             # Issue #11185: wait4 is broken on AIX and will always return 0
             # with WNOHANG.
             option = 0

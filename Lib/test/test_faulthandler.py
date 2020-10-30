@@ -131,7 +131,7 @@ class FaultHandlerTests(unittest.TestCase):
         fatal_error = 'Windows fatal exception: %s' % name_regex
         self.check_error(code, line_number, fatal_error, **kw)
 
-    @unittest.skipIf(sys.platform.startswith('aix'),
+    @unittest.skipIf(sys.platform in ('aix', 'os400'),
                      "the first page of memory is a mapped read-only on AIX")
     def test_read_null(self):
         if not MS_WINDOWS:

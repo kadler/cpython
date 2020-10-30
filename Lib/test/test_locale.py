@@ -370,12 +370,12 @@ class TestEnUSCollation(BaseLocalizedTest, TestCollation):
             raise unittest.SkipTest('wcscoll/wcsxfrm have known bugs')
         BaseLocalizedTest.setUp(self)
 
-    @unittest.skipIf(sys.platform.startswith('aix'),
+    @unittest.skipIf(sys.platform in ('aix', 'os400'),
                      'bpo-29972: broken test on AIX')
     def test_strcoll_with_diacritic(self):
         self.assertLess(locale.strcoll('à', 'b'), 0)
 
-    @unittest.skipIf(sys.platform.startswith('aix'),
+    @unittest.skipIf(sys.platform in ('aix', 'os400'),
                      'bpo-29972: broken test on AIX')
     def test_strxfrm_with_diacritic(self):
         self.assertLess(locale.strxfrm('à'), locale.strxfrm('b'))

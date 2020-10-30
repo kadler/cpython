@@ -227,7 +227,7 @@ class UTF8ModeTests(unittest.TestCase):
 
         if sys.platform == 'darwin' or support.is_android or VXWORKS:
             c_arg = arg_utf8
-        elif sys.platform.startswith("aix"):
+        elif sys.platform in ("aix", "os400"):
             c_arg = arg.decode('iso-8859-1')
         else:
             c_arg = arg_ascii
