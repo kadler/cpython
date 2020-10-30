@@ -1102,6 +1102,7 @@ always available.
    System           ``platform`` value
    ================ ===========================
    AIX              ``'aix'``
+   IBM i            ``'os400'``
    Linux            ``'linux'``
    Windows          ``'win32'``
    Windows/Cygwin   ``'cygwin'``
