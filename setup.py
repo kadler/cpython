@@ -43,7 +43,7 @@ HOST_PLATFORM = get_platform()
 MS_WINDOWS = (HOST_PLATFORM == 'win32')
 CYGWIN = (HOST_PLATFORM == 'cygwin')
 MACOS = (HOST_PLATFORM == 'darwin')
-AIX = (HOST_PLATFORM.startswith('aix'))
+AIX = (HOST_PLATFORM in ('aix', 'os400'))
 VXWORKS = ('vxworks' in HOST_PLATFORM)
 
 
