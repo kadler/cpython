@@ -405,6 +405,7 @@ then
 
     case $MACHDEP in
 	aix*) MACHDEP="aix";;
+	os400*) MACHDEP="os400";;
 	linux*) MACHDEP="linux";;
 	cygwin*) MACHDEP="cygwin";;
 	darwin*) MACHDEP="darwin";;
