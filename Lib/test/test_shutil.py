@@ -34,7 +34,7 @@ from test.support import TESTFN, FakePath
 
 TESTFN2 = TESTFN + "2"
 MACOS = sys.platform.startswith("darwin")
-AIX = sys.platform[:3] == 'aix'
+AIX = sys.platform in ('aix',)
 try:
     import grp
     import pwd

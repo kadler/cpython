@@ -41,7 +41,7 @@ def tearDownModule():
 
 def broken_unix_getsockname():
     """Return True if the platform is Mac OS 10.4 or older."""
-    if sys.platform.startswith("aix"):
+    if sys.platform in ("aix", "os400"):
         return True
     elif sys.platform != 'darwin':
         return False
