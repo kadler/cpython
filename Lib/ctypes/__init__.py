@@ -347,12 +347,13 @@ class CDLL(object):
             flags |= _FUNCFLAG_USE_ERRNO
         if use_last_error:
             flags |= _FUNCFLAG_USE_LASTERROR
-        if _sys.platform.startswith("aix"):
+        if _sys.platform in ("aix", "os400"):
             """When the name contains ".a(" and ends with ")",
                e.g., "libFOO.a(libFOO.so)" - this is taken to be an
                archive(member) syntax for dlopen(), and the mode is adjusted.
                Otherwise, name is presented to dlopen() as a file argument.
             """
+            # TODO: Needs to handle svr4 style as well
             if name and name.endswith(")") and ".a(" in name:
                 mode |= ( _os.RTLD_MEMBER | _os.RTLD_NOW )
         if _os.name == "nt":

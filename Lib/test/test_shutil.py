@@ -37,7 +37,7 @@ TESTFN2 = TESTFN + "2"
 TESTFN_SRC = TESTFN + "_SRC"
 TESTFN_DST = TESTFN + "_DST"
 MACOS = sys.platform.startswith("darwin")
-AIX = sys.platform[:3] == 'aix'
+AIX = sys.platform == 'aix'
 try:
     import grp
     import pwd
