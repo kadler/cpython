@@ -24,6 +24,7 @@ pipeline {
         ac_cv_func_sched_setaffinity = "no"
         ac_cv_func_sched_setparam = "no"
         ac_cv_func_sched_setscheduler = "no"
+        ac_cv_func_fexecve = "no"
         ac_cv_func_faccessat = "no"
         ac_cv_func_fchmodat = "no"
         ac_cv_func_fchownat = "no"
