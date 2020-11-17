@@ -71,7 +71,8 @@ pipeline {
     stage('test') {
       steps {
         timeout(90) {
-          sh 'make EXTRATESTOPTS=-v buildbottest'
+          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results.xml -j4 \${BUILDBOT_TESTOPTS}' TESTPYTHONOPTS="
+          junit 'test-result.xml'
         }
       }
     }
