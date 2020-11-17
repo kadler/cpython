@@ -72,10 +72,17 @@ pipeline {
     }
     stage('test') {
       steps {
-        timeout(20) {
-          sh 'make EXTRATESTOPTS=-v buildbottest'
+        timeout(90) {
+          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results-raw.xml'"
         }
       }
+    }
+  }
+
+  post {
+    always {
+      sh 'python3.6 cpython-to-junit.py test-results-raw.xml test-results.xml'
+      junit 'test-results.xml'
     }
   }
 }
