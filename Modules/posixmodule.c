@@ -5378,6 +5378,24 @@ static int
 convert_sched_param(PyObject *param, struct sched_param *res);
 #endif
 
+#ifdef __PASE__
+int posix_spawnattr_init(
+    posix_spawnattr_t *attr)
+{
+    attr->posix_attr_flags = 0;
+    attr->posix_attr_pgroup = 0;
+    /* Default value of signal mask is the parent's signal mask; */
+    /* other values are also allowed */
+    sigprocmask(SIG_BLOCK, NULL, &attr->posix_attr_sigmask);
+    sigemptyset(&attr->posix_attr_sigdefault);
+    /* Default values of scheduling attr inherited from the parent; */
+    /* other values are also allowed */
+    attr->posix_attr_schedpolicy = SCHED_OTHER;
+    attr->posix_attr_schedparam.sched_priority = 0;
+    return 0;
+}
+#endif
+
 static int
 parse_posix_spawn_flags(const char *func_name, PyObject *setpgroup,
                         int resetids, int setsid, PyObject *setsigmask,
