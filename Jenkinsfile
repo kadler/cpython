@@ -42,7 +42,6 @@ pipeline {
         ac_cv_func_utimensat = "no"
         ac_cv_func_shm_open = "no"
         ac_cv_func_shm_unlink = "no"
-        ac_cv_func_setgroups = "no"
         ac_cv_func_setregid = "no"
       }
       steps {
