@@ -43,6 +43,7 @@ pipeline {
         ac_cv_func_shm_open = "no"
         ac_cv_func_shm_unlink = "no"
         ac_cv_func_setregid = "no"
+        ac_cv_enable_visibility = "no"
       }
       steps {
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
