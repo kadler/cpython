@@ -6137,12 +6137,15 @@ os_register_at_fork_impl(PyObject *module, PyObject *before,
     }
     interp = _PyInterpreterState_Get();
 
+    PySys_FormatStderr("register_at_fork before %R\n", before);
     if (register_at_forker(&interp->before_forkers, before)) {
         return NULL;
     }
+    PySys_FormatStderr("register_at_fork after child %R\n", after_in_child);
     if (register_at_forker(&interp->after_forkers_child, after_in_child)) {
         return NULL;
     }
+    PySys_FormatStderr("register_at_fork after parent %R\n", after_in_parent);
     if (register_at_forker(&interp->after_forkers_parent, after_in_parent)) {
         return NULL;
     }
