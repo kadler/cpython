@@ -67,7 +67,8 @@ pipeline {
     }
     stage('build') {
       steps {
-        sh 'make -j4'
+        sh 'make -j4 python'
+        sh 'make' // no -jX so setup.py builds sequentially
       }
     }
     stage('test') {
