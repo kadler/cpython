@@ -392,8 +392,8 @@ class PyBuildExt(build_ext):
 
         build_ext.build_extensions(self)
 
-        for ext in self.extensions:
-            self.check_extension_import(ext)
+        #for ext in self.extensions:
+        #    self.check_extension_import(ext)
 
         longest = max([len(e.name) for e in self.extensions], default=0)
         if self.failed or self.failed_on_import:
