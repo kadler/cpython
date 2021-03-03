@@ -74,10 +74,15 @@ pipeline {
     stage('test') {
       steps {
         timeout(90) {
-          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results.xml -j4 \${BUILDBOT_TESTOPTS}' TESTPYTHONOPTS= || :"
-          junit 'test-result.xml'
+          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results.xml -j4 \${BUILDBOT_TESTOPTS}' TESTPYTHONOPTS="
         }
       }
+    }
+  }
+
+  post {
+    always {
+      junit 'test-result.xml'
     }
   }
 }
