@@ -463,8 +463,6 @@ run_at_forkers(PyObject *lst, int reverse)
             for (i = 0; i < PyList_GET_SIZE(cpy); i++) {
                 PyObject *func, *res;
                 func = PyList_GET_ITEM(cpy, i);
-                PySys_FormatStderr("run_at_forkers: %R\n", func);
-
                 res = _PyObject_CallNoArg(func);
                 if (res == NULL)
                     PyErr_WriteUnraisable(func);
@@ -479,8 +477,6 @@ run_at_forkers(PyObject *lst, int reverse)
 void
 PyOS_BeforeFork(void)
 {
-    PySys_FormatStderr("PyOS_BeforeFork\n");
-
     run_at_forkers(_PyInterpreterState_Get()->before_forkers, 1);
 
     _PyImport_AcquireLock();
@@ -489,8 +485,6 @@ PyOS_BeforeFork(void)
 void
 PyOS_AfterFork_Parent(void)
 {
-    PySys_FormatStderr("PyOS_AfterFork_Parent\n");
-
     if (_PyImport_ReleaseLock() <= 0)
         Py_FatalError("failed releasing import lock after fork");
 
@@ -500,8 +494,6 @@ PyOS_AfterFork_Parent(void)
 void
 PyOS_AfterFork_Child(void)
 {
-    PySys_FormatStderr("PyOS_AfterFork_Child\n");
-
     _PyRuntimeState *runtime = &_PyRuntime;
     _PyGILState_Reinit(runtime);
     _PyEval_ReInitThreads(runtime);
