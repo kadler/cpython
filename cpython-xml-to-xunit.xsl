@@ -16,6 +16,9 @@
     </xsl:template>
     <xsl:template match="testsuite">
         <xsl:element name="testsuite">
+            <xsl:attribute name="name">
+                <xsl:value-of select="substring-before(substring-after(*/@name, '.'), '.')"/>
+            </xsl:attribute>
             <xsl:attribute name="timestamp">
                 <xsl:value-of select="@start"/>
             </xsl:attribute>
