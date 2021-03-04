@@ -16,8 +16,9 @@ pipeline {
 
   post {
     always {
+      sh 'python3.6 cpython-to-junit.py'
       xunit (
-        tools: [ Custom(pattern: 'test-results.xml', customXSL: 'cpython-xml-to-xunit.xsl') ]
+        tools: [ Custom(pattern: 'test-results.xml') ]
       )
     }
   }
