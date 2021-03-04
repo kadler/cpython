@@ -9,6 +9,7 @@ pipeline {
     stage('test') {
       steps {
           sh "echo run tests"
+          sh "touch test-results.xml"
       }
     }
   }
