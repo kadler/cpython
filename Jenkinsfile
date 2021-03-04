@@ -74,7 +74,7 @@ pipeline {
     stage('test') {
       steps {
         timeout(90) {
-          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results.xml -j4 \${BUILDBOT_TESTOPTS}' TESTPYTHONOPTS="
+          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results-raw.xml -j4 \${BUILDBOT_TESTOPTS}' TESTPYTHONOPTS="
         }
       }
     }
@@ -82,6 +82,7 @@ pipeline {
 
   post {
     always {
+      sh 'python3.6 cpython-to-junit.py test-results-raw.xml test-results.xml'
       junit 'test-results.xml'
     }
   }
