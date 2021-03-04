@@ -9,7 +9,6 @@ pipeline {
     stage('test') {
       steps {
           sh "echo run tests"
-          sh "touch test-results.xml"
       }
     }
   }
@@ -17,9 +16,7 @@ pipeline {
   post {
     always {
       sh 'python3.6 cpython-to-junit.py'
-      xunit (
-        tools: [ Custom(pattern: 'test-results.xml') ]
-      )
+      junit 'test-results.xml'
     }
   }
 }
