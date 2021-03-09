@@ -1308,7 +1308,8 @@ class BaseEventLoopWithSelectorTests(test_utils.TestCase):
                 test_utils.run_briefly(self.loop)  # allow transport to close
 
     @unittest.skipUnless(support.IPV6_ENABLED, 'no IPv6 support')
-    @unittest.skipIf(sys.platform in ('aix', 'os400')),
+    @unittest.skipIf(sys.platform in ('aix', 'os400'),
+                    "bpo-25545: IPv6 scope id and getaddrinfo() behave differently on AIX")
     @patch_socket
     def test_create_connection_ipv6_scope(self, m_socket):
         m_socket.getaddrinfo = socket.getaddrinfo
