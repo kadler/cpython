@@ -492,6 +492,13 @@ _multiprocessing_SemLock_impl(PyTypeObject *type, int kind, int value,
         return NULL;
     }
 
+#ifdef __PASE__
+    /* PASE doesn't inherit named semaphores across a fork, so we
+       need to leave the semaphore linked so that we can reopen it
+       in the after_fork handler */
+    unlink = 0;
+#endif
+
     if (!unlink) {
         name_copy = PyMem_Malloc(strlen(name) + 1);
         if (name_copy == NULL) {
@@ -665,6 +672,17 @@ _multiprocessing_SemLock__after_fork_impl(SemLockObject *self)
 /*[clinic end generated code: output=718bb27914c6a6c1 input=190991008a76621e]*/
 {
     self->count = 0;
+
+#ifdef __PASE__
+    /* PASE currently doesn't inherit named semaphores
+       across fork() so we must re-open it.
+       NOTE: the old handle is invalid, so we can't close it */
+    self->handle = sem_open(self->name, 0);
+    if (self->handle == SEM_FAILED) {
+        return PyErr_SetFromErrno(PyExc_OSError);
+    }
+#endif
+
     Py_RETURN_NONE;
 }
 
