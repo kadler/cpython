@@ -58,9 +58,7 @@ pipeline {
           --with-computed-gotos \
           --enable-ipv6 \
           --enable-loadable-sqlite-extensions \
-          --enable-shared \
-          --build=powerpc64-ibm-aix6  \
-          --host=powerpc64-ibm-aix6
+          --enable-shared
         '''
         // sh 'perl -p -i -e "s|ld_so_aix \\$(CC)|ld_so_aix \\$(CC) -maix${OBJECT_MODE}|" Makefile'
       }
