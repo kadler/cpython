@@ -1,7 +1,7 @@
 pipeline {
   agent {
     node {
-      label 'ibmi7.2-debug'
+      label 'ibmi7.2'
     }
 
   }
@@ -44,11 +44,14 @@ pipeline {
         ac_cv_func_shm_unlink = "no"
         ac_cv_func_setregid = "no"
         ac_cv_enable_visibility = "no"
+        ac_cv_flock_decl = "no"
+        ac_cv_lib_bsd_flock = "no"
       }
       steps {
+        sh 'system "CHGAUT OBJ(\'\"$PWD\"\') SUBTREE(*ALL) DTAAUT(*RWX) OBJAUT(*ALL) USER(pybuild)"'
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
-        sh 'autoreconf'
-        sh '''./configure \
+        sh '/QOpenSys/sudo -u pybuild autoreconf'
+        sh '''/QOpenSys/sudo -u pybuild ./configure \
           --config-cache \
           --with-system-expat \
           --with-system-ffi \
@@ -58,22 +61,27 @@ pipeline {
           --with-computed-gotos \
           --enable-ipv6 \
           --enable-loadable-sqlite-extensions \
-          --enable-shared \
-          --build=powerpc64-ibm-aix6  \
-          --host=powerpc64-ibm-aix6
+          --enable-shared
         '''
         // sh 'perl -p -i -e "s|ld_so_aix \\$(CC)|ld_so_aix \\$(CC) -maix${OBJECT_MODE}|" Makefile'
       }
     }
     stage('build') {
       steps {
-        sh 'make -j4'
+        sh '''
+        cat <<EOF > Modules/Setup.local
+        *disabled*
+        _gdbm
+        EOF
+        '''
+        sh '/QOpenSys/sudo -u pybuild make -j4 python'
+        sh '/QOpenSys/sudo -u pybuild make'
       }
     }
     stage('test') {
       steps {
         timeout(90) {
-          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results-raw.xml'"
+          sh "/QOpenSys/sudo -u pybuild make buildbottest 'TESTOPTS=-j2 --junit-xml test-results-raw.xml'"
         }
       }
     }
@@ -83,6 +91,7 @@ pipeline {
     always {
       sh 'python3.6 cpython-to-junit.py test-results-raw.xml test-results.xml'
       junit 'test-results.xml'
+      archiveArtifacts artifacts: 'test-results*.xml'
     }
   }
 }
