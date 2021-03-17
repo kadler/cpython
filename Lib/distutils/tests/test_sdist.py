@@ -449,8 +449,15 @@ class SDistTestCase(BasePyPIRCCommandTestCase):
 
         # creating a gztar and specifying the owner+group
         cmd.formats = ['gztar']
-        cmd.owner = pwd.getpwuid(0)[0]
-        cmd.group = grp.getgrgid(0)[0]
+        uid = 0
+        gid = 0
+
+        if os.uname().sysname == 'OS400':
+            gid = 4294947291  # pygrp1
+            uid = 117  # pybuild
+
+        cmd.owner = pwd.getpwuid(gid)[0]
+        cmd.group = grp.getgrgid(uid)[0]
         cmd.ensure_finalized()
         cmd.run()
 

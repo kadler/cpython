@@ -337,8 +337,15 @@ class ArchiveUtilTestCase(support.TempdirManager,
         # testing make_archive with owner and group, with various combinations
         # this works even if there's not gid/uid support
         if UID_GID_SUPPORT:
-            group = grp.getgrgid(0)[0]
-            owner = pwd.getpwuid(0)[0]
+            uid = 0
+            gid = 0
+
+            if sys.platform in ('os400'):
+                gid = 4294947291  # pygrp1
+                uid = 117  # pybuild
+
+            group = grp.getgrgid(gid)[0]
+            owner = pwd.getpwuid(uid)[0]
         else:
             group = owner = 'root'
 
