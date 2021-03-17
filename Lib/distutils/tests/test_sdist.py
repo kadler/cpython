@@ -456,8 +456,8 @@ class SDistTestCase(BasePyPIRCCommandTestCase):
             gid = 4294947291  # pygrp1
             uid = 117  # pybuild
 
-        cmd.owner = pwd.getpwuid(gid)[0]
-        cmd.group = grp.getgrgid(uid)[0]
+        cmd.owner = pwd.getpwuid(uid)[0]
+        cmd.group = grp.getgrgid(gid)[0]
         cmd.ensure_finalized()
         cmd.run()
 

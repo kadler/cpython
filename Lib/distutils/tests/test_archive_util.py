@@ -374,8 +374,15 @@ class ArchiveUtilTestCase(support.TempdirManager,
         base_name = os.path.join(self.mkdtemp(), 'archive')
         old_dir = os.getcwd()
         os.chdir(tmpdir)
-        group = grp.getgrgid(0)[0]
-        owner = pwd.getpwuid(0)[0]
+        uid = 0
+        gid = 0
+
+        if sys.platform in ('os400'):
+            gid = 4294947291  # pygrp1
+            uid = 117  # pybuild
+
+        group = grp.getgrgid(gid)[0]
+        owner = pwd.getpwuid(uid)[0]
         try:
             archive_name = make_tarball(base_name, 'dist', compress=None,
                                         owner=owner, group=group)

@@ -1445,8 +1445,8 @@ class TestArchives(BaseTest, unittest.TestCase):
         archive = tarfile.open(archive_name)
         try:
             for member in archive.getmembers():
-                self.assertEqual(member.uid, 0)
-                self.assertEqual(member.gid, 0)
+                self.assertEqual(member.uid, uid)
+                self.assertEqual(member.gid, gid)
         finally:
             archive.close()
 
@@ -1610,8 +1610,12 @@ class TestMisc(BaseTest, unittest.TestCase):
         with self.assertRaises(TypeError):
             shutil.chown(filename, 3.14)
 
-        uid = os.getuid()
-        gid = os.getgid()
+        if sys.platform in ('os400'):
+            gid = 4294947291  # pygrp1
+            uid = 117  # pybuild
+        else:
+            uid = os.getuid()
+            gid = os.getgid()
 
         def check_chown(path, uid=None, gid=None):
             s = os.stat(filename)
