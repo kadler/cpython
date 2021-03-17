@@ -1440,8 +1440,15 @@ class TestArchives(BaseTest, unittest.TestCase):
         # testing make_archive with owner and group, with various combinations
         # this works even if there's not gid/uid support
         if UID_GID_SUPPORT:
-            group = grp.getgrgid(0)[0]
-            owner = pwd.getpwuid(0)[0]
+            uid = 0
+            gid = 0
+
+            if sys.platform == 'os400':
+                gid = 4294947291  # pygrp1
+                uid = 117  # pybuild
+
+            group = grp.getgrgid(gid)[0]
+            owner = pwd.getpwuid(uid)[0]
         else:
             group = owner = 'root'
 
@@ -1465,9 +1472,12 @@ class TestArchives(BaseTest, unittest.TestCase):
 
     @support.requires_zlib()
     @unittest.skipUnless(UID_GID_SUPPORT, "Requires grp and pwd support")
+    @unittest.skipIf(sys.platform == 'os400',
+                     'No root user on IBM i, UID 0 = qsecofer & gid 0 = *NONE')
     def test_tarfile_root_owner(self):
         root_dir, base_dir = self._create_files()
         base_name = os.path.join(self.mkdtemp(), 'archive')
+
         group = grp.getgrgid(0)[0]
         owner = pwd.getpwuid(0)[0]
         with os_helper.change_cwd(root_dir):
