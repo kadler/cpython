@@ -4222,6 +4222,9 @@ class _TestImportStar(unittest.TestCase):
             # This module requires _ctypes
             modules.remove('multiprocessing.sharedctypes')
 
+        if not HAS_SHMEM:
+            modules.remove('multiprocessing.shared_memory')
+
         for name in modules:
             __import__(name)
             mod = sys.modules[name]
