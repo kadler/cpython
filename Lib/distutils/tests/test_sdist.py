@@ -466,8 +466,8 @@ class SDistTestCase(BasePyPIRCCommandTestCase):
         archive = tarfile.open(archive_name)
         try:
             for member in archive.getmembers():
-                self.assertEqual(member.uid, 0)
-                self.assertEqual(member.gid, 0)
+                self.assertEqual(member.uid, uid)
+                self.assertEqual(member.gid, gid)
         finally:
             archive.close()
 

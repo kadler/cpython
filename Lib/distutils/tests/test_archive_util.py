@@ -369,20 +369,16 @@ class ArchiveUtilTestCase(support.TempdirManager,
 
     @unittest.skipUnless(ZLIB_SUPPORT, "Requires zlib")
     @unittest.skipUnless(UID_GID_SUPPORT, "Requires grp and pwd support")
+    @unittest.skipIf(sys.platform in ('os400',),
+                     'No root user on IBM i, UID 0 = qsecofer & gid 0 = *NONE')
     def test_tarfile_root_owner(self):
         tmpdir =  self._create_files()
         base_name = os.path.join(self.mkdtemp(), 'archive')
         old_dir = os.getcwd()
         os.chdir(tmpdir)
-        uid = 0
-        gid = 0
 
-        if sys.platform in ('os400'):
-            gid = 4294947291  # pygrp1
-            uid = 117  # pybuild
-
-        group = grp.getgrgid(gid)[0]
-        owner = pwd.getpwuid(uid)[0]
+        group = grp.getgrgid(0)[0]
+        owner = pwd.getpwuid(0)[0]
         try:
             archive_name = make_tarball(base_name, 'dist', compress=None,
                                         owner=owner, group=group)

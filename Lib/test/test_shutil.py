@@ -1422,18 +1422,14 @@ class TestArchives(BaseTest, unittest.TestCase):
 
     @support.requires_zlib
     @unittest.skipUnless(UID_GID_SUPPORT, "Requires grp and pwd support")
+    @unittest.skipIf(sys.platform in ('os400',),
+                     'No root user on IBM i, UID 0 = qsecofer & gid 0 = *NONE')
     def test_tarfile_root_owner(self):
         root_dir, base_dir = self._create_files()
         base_name = os.path.join(self.mkdtemp(), 'archive')
-        uid = 0
-        gid = 0
 
-        if sys.platform in ('os400'):
-            gid = 4294947291  # pygrp1
-            uid = 117  # pybuild
-
-        group = grp.getgrgid(gid)[0]
-        owner = pwd.getpwuid(uid)[0]
+        group = grp.getgrgid(0)[0]
+        owner = pwd.getpwuid(0)[0]
         with support.change_cwd(root_dir):
             archive_name = make_archive(base_name, 'gztar', root_dir, 'dist',
                                         owner=owner, group=group)
@@ -1445,8 +1441,8 @@ class TestArchives(BaseTest, unittest.TestCase):
         archive = tarfile.open(archive_name)
         try:
             for member in archive.getmembers():
-                self.assertEqual(member.uid, uid)
-                self.assertEqual(member.gid, gid)
+                self.assertEqual(member.uid, 0)
+                self.assertEqual(member.gid, 0)
         finally:
             archive.close()
 
