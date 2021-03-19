@@ -47,8 +47,8 @@ pipeline {
       }
       steps {
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
-        sh 'autoreconf'
-        sh '''./configure \
+        sh '/QOpenSys/sudo -u pybuild autoreconf'
+        sh '''/QOpenSys/sudo -u pybuild ./configure \
           --config-cache \
           --with-system-expat \
           --with-system-ffi \
@@ -65,13 +65,13 @@ pipeline {
     }
     stage('build') {
       steps {
-        sh 'make -j4'
+        sh '/QOpenSys/sudo -u pybuild make -j4'
       }
     }
     stage('test') {
       steps {
         timeout(90) {
-          sh "make buildbottest 'TESTOPTS=-j2 --junit-xml test-results-raw.xml'"
+          sh "/QOpenSys/sudo -u pybuild make buildbottest 'TESTOPTS=-j2 --junit-xml test-results-raw.xml'"
         }
       }
     }
