@@ -46,6 +46,7 @@ pipeline {
         ac_cv_enable_visibility = "no"
       }
       steps {
+        sh 'system "CHGAUT OBJ(\'\"$PWD\"\') SUBTREE(*ALL) DTAAUT(*RWX) OBJAUT(*ALL) USER(pybuild)"'
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
         sh '/QOpenSys/sudo -u pybuild autoreconf'
         sh '''/QOpenSys/sudo -u pybuild ./configure \
