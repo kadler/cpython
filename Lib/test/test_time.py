@@ -108,6 +108,8 @@ class TimeTestCase(unittest.TestCase):
                          'need time.pthread_getcpuclockid()')
     @unittest.skipUnless(hasattr(time, 'clock_gettime'),
                          'need time.clock_gettime()')
+    @unittest.skipIf(sys.platform == 'os400',
+                     'CLOCK_THREAD_CPUTIME_ID is unsupported on IBM i')
     def test_pthread_getcpuclockid(self):
         clk_id = time.pthread_getcpuclockid(threading.get_ident())
         self.assertTrue(type(clk_id) is int)
