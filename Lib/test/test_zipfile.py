@@ -607,6 +607,8 @@ class StoredTestsWithSourceFile(AbstractTestsWithSourceFile,
             zinfo = zipfp.getinfo(TESTFN)
             self.assertEqual(zinfo.date_time, (1980, 1, 1, 0, 0, 0))
 
+    @unittest.skipIf(sys.platform == "os400",
+                     "On IBM i IFS doesn't support times past 2038")
     def test_add_file_after_2107(self):
         # Set atime and mtime to 2108-12-30
         ts = 4386268800
