@@ -66,6 +66,12 @@ pipeline {
     }
     stage('build') {
       steps {
+        sh '''
+        cat <<EOF > Modules/Setup.local
+        *disabled*
+        _gdbm
+        EOF
+        '''
         sh '/QOpenSys/sudo -u pybuild make -j4'
       }
     }
