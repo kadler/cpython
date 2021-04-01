@@ -1437,7 +1437,7 @@ PyInit__signal(void)
             Handlers[i].func = Py_None; /* None of our business */
         Py_INCREF(Handlers[i].func);
     }
-    if (Handlers[SIGINT].func == DefaultHandler) {
+    if (Handlers[SIGINT].func == DefaultHandler || Handlers[SIGINT].func == IgnoreHandler) {
         /* Install default int handler */
         Py_INCREF(IntHandler);
         Py_SETREF(Handlers[SIGINT].func, IntHandler);
