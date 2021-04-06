@@ -744,9 +744,12 @@ class PosixTester(unittest.TestCase):
             check_stat(uid, gid)
             self.assertRaises(OSError, chown_func, first_param, 0, -1)
             check_stat(uid, gid)
-            if 0 not in os.getgroups():
-                self.assertRaises(OSError, chown_func, first_param, -1, 0)
-                check_stat(uid, gid)
+            # On OS400 GID 0 refers to *NONE rather than root GID. A non-root
+            # user is allowed to set GID 0 thus the OSError won't get raised
+            if platform.system() != 'OS400':
+                if 0 not in os.getgroups():
+                    self.assertRaises(OSError, chown_func, first_param, -1, 0)
+                    check_stat(uid, gid)
         # test illegal types
         for t in str, float:
             self.assertRaises(TypeError, chown_func, first_param, t(uid), gid)
