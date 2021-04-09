@@ -6499,7 +6499,14 @@ class CreateServerTest(unittest.TestCase):
         else:
             with socket.create_server(("localhost", 0)) as sock:
                 opt = sock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT)
-                self.assertEqual(opt, 0)
+                if OS400:
+                    # socket.create_server sets SO_REUSEADDR
+                    # On IBM i SO_REUSEADDR maps to SO_REUSEPORT and vice versa
+                    # So here we assert that SO_REUSEADDR is true since
+                    # SO_REUSEPORT is enabled via reuse_port kwarg
+                    self.assertEqual(opt, 1)
+                else:
+                    self.assertEqual(opt, 0)
             with socket.create_server(("localhost", 0), reuse_port=True) as sock:
                 opt = sock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT)
                 self.assertNotEqual(opt, 0)
