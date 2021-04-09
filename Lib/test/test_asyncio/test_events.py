@@ -814,9 +814,17 @@ class EventLoopTestsMixin:
         server = self.loop.run_until_complete(f)
         self.assertEqual(len(server.sockets), 1)
         sock = server.sockets[0]
-        self.assertFalse(
-            sock.getsockopt(
-                socket.SOL_SOCKET, socket.SO_REUSEPORT))
+        if sys.platform == 'os400':
+            # socket.create_server sets SO_REUSEADDR
+            # On IBM i SO_REUSEADDR maps to SO_REUSEPORT and vice versa
+            # There here we skip asser that SO_REUSEPORT is enabled
+            self.assertTrue(
+                sock.getsockopt(
+                    socket.SOL_SOCKET, socket.SO_REUSEPORT))
+        else:
+            self.assertFalse(
+                sock.getsockopt(
+                    socket.SOL_SOCKET, socket.SO_REUSEPORT))
         server.close()
 
         test_utils.run_briefly(self.loop)

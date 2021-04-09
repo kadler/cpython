@@ -1777,10 +1777,18 @@ class BaseEventLoopWithSelectorTests(test_utils.TestCase):
             allow_broadcast=True)
         transport, protocol = self.loop.run_until_complete(coro)
         sock = transport.get_extra_info('socket')
-
-        self.assertFalse(
-            sock.getsockopt(
-                socket.SOL_SOCKET, socket.SO_REUSEADDR))
+        if sys.platform == 'os400':
+            # socket.create_server sets SO_REUSEADDR
+            # On IBM i SO_REUSEADDR maps to SO_REUSEPORT and vice versa
+            # So here we assert that SO_REUSEADDR is true since
+            # SO_REUSEPORT is enabled via reuse_port kwarg
+            self.assertTrue(
+                sock.getsockopt(
+                    socket.SOL_SOCKET, socket.SO_REUSEADDR))
+        else:
+            self.assertFalse(
+                sock.getsockopt(
+                    socket.SOL_SOCKET, socket.SO_REUSEADDR))
         if reuseport_supported:
             self.assertTrue(
                 sock.getsockopt(
