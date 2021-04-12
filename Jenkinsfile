@@ -47,9 +47,6 @@ pipeline {
       }
       steps {
         sh 'system "CHGAUT OBJ(\'\"$PWD\"\') SUBTREE(*ALL) DTAAUT(*RWX) OBJAUT(*ALL) USER(pybuild)"'
-        // the setgid bit gets inheirted by / and this effects tests which
-        // expect certain permissions, so we unset it from the workspace.
-        sh 'chmod -R g-s $PWD'
         sh 'cp /QOpenSys/jenkins/python.cache config.cache || :'
         sh '/QOpenSys/sudo -u pybuild autoreconf'
         sh '''/QOpenSys/sudo -u pybuild ./configure \
