@@ -88,6 +88,7 @@ pipeline {
     always {
       sh 'python3.6 cpython-to-junit.py test-results-raw.xml test-results.xml'
       junit 'test-results.xml'
+      archiveArtifacts artifacts: 'test-results-raw.xml', 'test-results.xml'
     }
   }
 }
