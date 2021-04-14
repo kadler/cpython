@@ -50,8 +50,8 @@ for testsuite in testsuites:
                 testcase.attrib.pop(attr)
         
         for elem in testcase:
-            if elem.tag == 'output':
-                elem.tag = 'failure'
+            if elem.tag == 'output':  # output is used for expected failures
+                elem.tag = 'system-out'
         
 for parent, child in remove:
     parent.remove(child)
