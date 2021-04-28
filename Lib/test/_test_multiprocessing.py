@@ -4988,6 +4988,8 @@ class TestIgnoreEINTR(unittest.TestCase):
         conn.send_bytes(b'x' * cls.CONN_MAX_SIZE)
 
     @unittest.skipUnless(hasattr(signal, 'SIGUSR1'), 'requires SIGUSR1')
+    @unittest.skipIf(sys.platform == 'os400',
+                     "On IBM i killing a defunct process leads to [Errno 3] No such process")
     def test_ignore(self):
         conn, child_conn = multiprocessing.Pipe()
         try:
