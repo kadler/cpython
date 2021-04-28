@@ -3073,6 +3073,7 @@ class RecvmsgGenericTests(SendrecvmsgBase):
     def _testRecvmsgTrunc(self):
         self.sendToServer(MSG)
 
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testRecvmsgShortAncillaryBuf(self):
         # Test ancillary data buffer too small to hold any ancillary data.
         msg, ancdata, flags, addr = self.doRecvmsg(self.serv_sock,
@@ -3658,13 +3659,14 @@ class SCMRightsTest(SendrecvmsgServerTimeoutBase):
 
     # Check that no ancillary data is returned for various non-zero
     # (but still too small) buffer sizes.
-
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testCmsgTrunc1(self):
         self.checkTruncatedHeader(self.doRecvmsg(self.serv_sock, len(MSG), 1))
 
     def _testCmsgTrunc1(self):
         self.createAndSendFDs(1)
 
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testCmsgTrunc2Int(self):
         # The cmsghdr structure has at least three members, two of
         # which are ints, so we still shouldn't see any ancillary
@@ -3675,6 +3677,7 @@ class SCMRightsTest(SendrecvmsgServerTimeoutBase):
     def _testCmsgTrunc2Int(self):
         self.createAndSendFDs(1)
 
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testCmsgTruncLen0Minus1(self):
         self.checkTruncatedHeader(self.doRecvmsg(self.serv_sock, len(MSG),
                                                  socket.CMSG_LEN(0) - 1))
@@ -3709,18 +3712,22 @@ class SCMRightsTest(SendrecvmsgServerTimeoutBase):
                 len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
         self.checkFDs(fds)
 
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testCmsgTruncLen0(self):
         self.checkTruncatedArray(ancbuf=socket.CMSG_LEN(0), maxdata=0)
 
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def _testCmsgTruncLen0(self):
         self.createAndSendFDs(1)
 
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testCmsgTruncLen0Plus1(self):
         self.checkTruncatedArray(ancbuf=socket.CMSG_LEN(0) + 1, maxdata=1)
 
     def _testCmsgTruncLen0Plus1(self):
         self.createAndSendFDs(2)
 
+    @unittest.skipIf(OS400, "skipping, Msg Flags are not being returned")
     def testCmsgTruncLen1(self):
         self.checkTruncatedArray(ancbuf=socket.CMSG_LEN(SIZEOF_INT),
                                  maxdata=SIZEOF_INT)
@@ -3728,6 +3735,7 @@ class SCMRightsTest(SendrecvmsgServerTimeoutBase):
     def _testCmsgTruncLen1(self):
         self.createAndSendFDs(2)
 
+    @unittest.skipIf(OS400, "skipping, Msg Flags are not being returned ")
     def testCmsgTruncLen2Minus1(self):
         self.checkTruncatedArray(ancbuf=socket.CMSG_LEN(2 * SIZEOF_INT) - 1,
                                  maxdata=(2 * SIZEOF_INT) - 1)
@@ -3999,6 +4007,7 @@ class RFC3542AncillaryTest(SendrecvmsgServerTimeoutBase):
     # (but still too small) buffer sizes.
 
     @requireAttrs(socket, "IPV6_RECVHOPLIMIT", "IPV6_HOPLIMIT")
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testSingleCmsgTrunc1(self):
         self.checkHopLimitTruncatedHeader(ancbufsize=1)
 
@@ -4008,6 +4017,7 @@ class RFC3542AncillaryTest(SendrecvmsgServerTimeoutBase):
         self.sendToServer(MSG)
 
     @requireAttrs(socket, "IPV6_RECVHOPLIMIT", "IPV6_HOPLIMIT")
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testSingleCmsgTrunc2Int(self):
         self.checkHopLimitTruncatedHeader(ancbufsize=2 * SIZEOF_INT)
 
@@ -4017,6 +4027,7 @@ class RFC3542AncillaryTest(SendrecvmsgServerTimeoutBase):
         self.sendToServer(MSG)
 
     @requireAttrs(socket, "IPV6_RECVHOPLIMIT", "IPV6_HOPLIMIT")
+    @unittest.skipIf(OS400, "skipping, Passing an ancillary data buffer > 0 but < 16 raises EINVAL")
     def testSingleCmsgTruncLen0Minus1(self):
         self.checkHopLimitTruncatedHeader(ancbufsize=socket.CMSG_LEN(0) - 1)
 
