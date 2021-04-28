@@ -1606,8 +1606,12 @@ class TestMisc(BaseTest, unittest.TestCase):
         with self.assertRaises(TypeError):
             shutil.chown(filename, 3.14)
 
-        uid = os.getuid()
-        gid = os.getgid()
+        if sys.platform in ('os400'):
+            gid = 4294947291  # pygrp1
+            uid = 117  # pybuild
+        else:
+            uid = os.getuid()
+            gid = os.getgid()
 
         def check_chown(path, uid=None, gid=None):
             s = os.stat(filename)
