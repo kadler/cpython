@@ -882,12 +882,7 @@ PIPE_MAX_SIZE = 4 * 1024 * 1024 + 1
 # The socket buffer sizes can usually be tuned system-wide (e.g. through sysctl
 # on Linux), or on a per-socket basis (SO_SNDBUF/SO_RCVBUF). See issue #18643
 # for a discussion of this number).
-if platform.system() == "OS400":
-    # 16 Mb is not enough to block
-    # use 1 Gb instead
-    SOCK_MAX_SIZE = 1 * 1024 * 1024 * 1024 + 1
-else:
-    SOCK_MAX_SIZE = 16 * 1024 * 1024 + 1
+SOCK_MAX_SIZE = 16 * 1024 * 1024 + 1
 
 # decorator for skipping tests on non-IEEE 754 platforms
 requires_IEEE_754 = unittest.skipUnless(
