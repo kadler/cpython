@@ -2199,8 +2199,9 @@ class POSIXProcessTestCase(BaseTestCase):
         getattr(p, method)(*args)
         return p
 
-    @unittest.skipIf(sys.platform.startswith(('netbsd', 'openbsd')),
-                     "Due to known OS bug (issue #16762)")
+    @unittest.skipIf(sys.platform.startswith(('netbsd', 'openbsd', 'os400')),
+                     "Due to known OS bug (issue #16762)"
+                     "On IBM i killing a defunct process leads to [Errno 3] No such process")
     def _kill_dead_process(self, method, *args):
         # Do not inherit file handles from the parent.
         # It should fix failures on some platforms.
@@ -3428,9 +3429,13 @@ class MiscTests(unittest.TestCase):
             process.wait()
             self.assertEqual([], self.RecordingPopen.instances_created)
 
+    @unittest.skipIf(sys.platform.startswith(('os400',)),
+                     "On IBM i killing a defunct process leads to [Errno 3] No such process")
     def test_call_keyboardinterrupt_no_kill(self):
         self._test_keyboardinterrupt_no_kill(subprocess.call, timeout=6.282)
 
+    @unittest.skipIf(sys.platform.startswith(('os400',)),
+                     "On IBM i killing a defunct process leads to [Errno 3] No such process")
     def test_run_keyboardinterrupt_no_kill(self):
         self._test_keyboardinterrupt_no_kill(subprocess.run, timeout=6.282)
 
