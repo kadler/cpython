@@ -2199,8 +2199,9 @@ class POSIXProcessTestCase(BaseTestCase):
         getattr(p, method)(*args)
         return p
 
-    @unittest.skipIf(sys.platform.startswith(('netbsd', 'openbsd')),
-                     "Due to known OS bug (issue #16762)")
+    @unittest.skipIf(sys.platform.startswith(('netbsd', 'openbsd', 'os400')),
+                     "Due to known OS bug (issue #16762)"
+                     "On IBM i killing a defunct process leads to [Errno 3] No such process")
     def _kill_dead_process(self, method, *args):
         # Do not inherit file handles from the parent.
         # It should fix failures on some platforms.
