@@ -139,10 +139,6 @@ if sys.platform == 'win32' and platform.machine() == 'ARM':
     # seconds on Windows ARM32 buildbot
     LOOPBACK_TIMEOUT = 10
 
-if sys.platform == 'os400':
-    # See if this resolves timeout on test.test_ftplib.TestFTPClass.test_abort
-    LOOPBACK_TIMEOUT = 10
-
 # Timeout in seconds for network requests going to the Internet. The timeout is
 # short enough to prevent a test to wait for too long if the Internet request
 # is blocked for whatever reason.
