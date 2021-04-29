@@ -3429,6 +3429,8 @@ class MiscTests(unittest.TestCase):
             process.wait()
             self.assertEqual([], self.RecordingPopen.instances_created)
 
+    @unittest.skipIf(sys.platform.startswith(('os400',)),
+                     "On IBM i killing a defunct process leads to [Errno 3] No such process")
     def test_call_keyboardinterrupt_no_kill(self):
         self._test_keyboardinterrupt_no_kill(subprocess.call, timeout=6.282)
 
