@@ -1620,9 +1620,11 @@ class GeneralModuleTests(unittest.TestCase):
             c.close()
             s.close()
 
+    @unittest.skipIf(OS400, 'No way to reliably trigger blocking writes.')
     def test_sendall_interrupted(self):
         self.check_sendall_interrupted(False)
 
+    @unittest.skipIf(OS400, 'No way to reliably trigger blocking writes.')
     def test_sendall_interrupted_with_timeout(self):
         self.check_sendall_interrupted(True)
 
