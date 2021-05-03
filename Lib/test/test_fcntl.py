@@ -152,8 +152,8 @@ class TestFcntl(unittest.TestCase):
 
         self.assertRaises(ValueError, fcntl.flock, -1, fcntl.LOCK_SH)
         self.assertRaises(TypeError, fcntl.flock, 'spam', fcntl.LOCK_SH)
-    # on OS400 we get AssertionError: 1 != 0
-    @unittest.skipIf(platform.system() == "AIX", "AIX returns PermissionError")
+    @unittest.skipIf(platform.system() == "AIX" or platform.system() == "OS400",
+                     "AIX and OS400 returns PermissionError")
     def test_lockf_exclusive(self):
         self.f = open(TESTFN, 'wb+')
         cmd = fcntl.LOCK_EX | fcntl.LOCK_NB
