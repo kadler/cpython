@@ -73,6 +73,8 @@ class NetworkedNNTPTestsMixin:
             self.assertIsInstance(groups[0], GroupInfo)
             self.assertIsInstance(groups[0].group, str)
 
+    @unittest.skipIf(True, 'Broken skip until upstream fix is applied'
+                           ' see https://bugs.python.org/issue42794')
     def test_description(self):
         def _check_desc(desc):
             # Sanity checks
@@ -89,6 +91,8 @@ class NetworkedNNTPTestsMixin:
         desc = self.server.description("zk.brrtt.baz")
         self.assertEqual(desc, '')
 
+    @unittest.skipIf(True, 'Broken skip until upstream fix is applied'
+                           ' see https://bugs.python.org/issue42794')
     def test_descriptions(self):
         resp, descs = self.server.descriptions(self.GROUP_PAT)
         # 215 for LIST NEWSGROUPS, 282 for XGTITLE
