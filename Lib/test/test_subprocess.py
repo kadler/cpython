@@ -1787,8 +1787,13 @@ class POSIXProcessTestCase(BaseTestCase):
         # still indicates that it was called.
 
         uid = os.geteuid()
-        test_users = [65534 if uid != 65534 else 65533, uid]
-        name_uid = "nobody" if sys.platform != 'darwin' else "unknown"
+        if sys.platform == 'os400':
+            # there is no nobdy user on IBM i
+             test_users = [uid]
+             name_uid = "pybuild"
+        else:
+            test_users = [65534 if uid != 65534 else 65533, uid]
+            name_uid = "nobody" if sys.platform != 'darwin' else "unknown"
 
         if pwd is not None:
             test_users.append(name_uid)
