@@ -697,8 +697,9 @@ _PyMp_sem_unlink(PyObject *ignore, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "s", &name))
         return NULL;
-
+    errno = 0;
     if (SEM_UNLINK(name) < 0) {
+        fprintf(stderr, "name of semaphore: %s\n", name);
         _PyMp_SetError(NULL, MP_STANDARD_ERROR);
         return NULL;
     }
