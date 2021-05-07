@@ -516,7 +516,6 @@ class FNTLEINTRTest(EINTRBaseTest):
 
     # Issue 35633: See https://bugs.python.org/issue35633#msg333662
     # skip test rather than accept PermissionError from all platforms
-    @unittest.skipIf(platform.system() in ("AIX", "OS400"), "AIX and OS400 returns PermissionError")
     def test_lockf(self):
         self._lock(fcntl.lockf, "lockf")
 
