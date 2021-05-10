@@ -324,6 +324,11 @@ fcntl_flock_impl(PyObject *module, int fd, int code)
     }
 #endif /* HAVE_FLOCK */
     if (ret < 0) {
+#if defined(_AIX)
+        if (code & LOCK_NB && errno == EACCES) {
+            errno = EWOULDBLOCK;
+        }
+#endif
         return !async_err ? PyErr_SetFromErrno(PyExc_OSError) : NULL;
     }
     Py_RETURN_NONE;
