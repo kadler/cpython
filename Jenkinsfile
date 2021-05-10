@@ -45,6 +45,7 @@ pipeline {
         ac_cv_func_setregid = "no"
         ac_cv_enable_visibility = "no"
         ac_cv_flock_decl = "no"
+        ac_cv_lib_bsd_flock = "no"
       }
       steps {
         sh 'system "CHGAUT OBJ(\'\"$PWD\"\') SUBTREE(*ALL) DTAAUT(*RWX) OBJAUT(*ALL) USER(pybuild)"'
