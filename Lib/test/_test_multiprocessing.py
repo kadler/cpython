@@ -87,6 +87,7 @@ if os.name == "posix":
     from multiprocessing import resource_tracker
 
     def _resource_unlink(name, rtype):
+        print(f"Calling resource unlink on rtype({rtype}) and name({name})")
         resource_tracker._CLEANUP_FUNCS[rtype](name)
 
 
