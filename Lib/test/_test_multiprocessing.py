@@ -5056,10 +5056,10 @@ class TestResourceTracker(unittest.TestCase):
                 os.close(w)
                 with open(r, 'rb', closefd=True) as f:
                     name1 = f.readline()
-                    print(f"full line name1 is: '{name1}'")
+                    print(f"full line name1 is: '{name1.decode('ascii')}'")
                     name1 = name1.rstrip().decode('ascii')
                     name2 = f.readline()
-                    print(f"full line name2 is: '{name2}'")
+                    print(f"full line name2 is: '{name2.decode('ascii')}'")
                     name2 = name2.rstrip().decode('ascii')
                 _resource_unlink(name1, rtype)
                 p.terminate()
