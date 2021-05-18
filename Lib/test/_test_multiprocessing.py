@@ -5038,8 +5038,8 @@ class TestResourceTracker(unittest.TestCase):
             resource1, rname1 = create_and_register_resource("{rtype}")
             resource2, rname2 = create_and_register_resource("{rtype}")
 
-            os.write({w}, rname1.encode("ascii") + b"\\n")
-            os.write({w}, rname2.encode("ascii") + b"\\n")
+            os.write({w}, rname1.encode("ascii") + b"name1\\n")
+            os.write({w}, rname2.encode("ascii") + b"name2\\n")
 
             time.sleep(10)
         '''
@@ -5055,8 +5055,12 @@ class TestResourceTracker(unittest.TestCase):
                                      stderr=subprocess.PIPE)
                 os.close(w)
                 with open(r, 'rb', closefd=True) as f:
-                    name1 = f.readline().rstrip().decode('ascii')
-                    name2 = f.readline().rstrip().decode('ascii')
+                    name1 = f.readline()
+                    print(f"full line name1 is: '{name1}'")
+                    name1 = name1.rstrip().decode('ascii')
+                    name2 = f.readline()
+                    print(f"full line name2 is: '{name2}'")
+                    name2 = name2.rstrip().decode('ascii')
                 _resource_unlink(name1, rtype)
                 p.terminate()
                 p.wait()
