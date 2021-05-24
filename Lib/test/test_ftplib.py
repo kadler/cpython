@@ -96,11 +96,12 @@ class DummyFTPHandler(asynchat.async_chat):
         self.push('220 welcome')
 
     def collect_incoming_data(self, data):
-        print(f"got incoming data: {data.decode('ascii')}")
+        print(f"got incoming data: {data}")
         self.in_buffer.append(data)
-        print(f"current input buffer: {b''.join(self.in_buffer).decode('ascii')}")
+        print(f"current input buffer: {b''.join(self.in_buffer)}")
 
     def found_terminator(self):
+        print("in found_terminator method!")
         line = b''.join(self.in_buffer).decode('ascii')
         self.in_buffer = []
         if self.next_response:
