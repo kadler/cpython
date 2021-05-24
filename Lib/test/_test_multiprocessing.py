@@ -5017,7 +5017,8 @@ class TestResourceTracker(unittest.TestCase):
             import time, os, tempfile
             import multiprocessing as mp
             from multiprocessing import resource_tracker
-            from multiprocessing.shared_memory import SharedMemory
+            if rtype == "shared_memory":
+                from multiprocessing.shared_memory import SharedMemory
 
             mp.set_start_method("spawn")
             rand = tempfile._RandomNameSequence()
