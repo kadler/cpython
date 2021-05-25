@@ -5014,40 +5014,26 @@ class TestResourceTracker(unittest.TestCase):
         # Check that killing process does not leak named semaphores
         #
         cmd = '''if 1:
-            print("importing time, os, tempfile")
             import time, os, tempfile
-            print("importing multiprocessing")
             import multiprocessing as mp
-            print("importing resource tracker")
             from multiprocessing import resource_tracker
-
-            print("setting start method to spawn")
             mp.set_start_method("spawn")
-            print("getting random name sequence")
             rand = tempfile._RandomNameSequence()
-
-
             def create_and_register_resource(rtype):
                 if rtype == "semaphore":
                     lock = mp.Lock()
                     return lock, lock._semlock.name
                 elif rtype == "shared_memory":
+                    from multiprocessing.shared_memory import SharedMemory
                     sm = SharedMemory(create=True, size=10)
                     return sm, sm._name
                 else:
                     raise ValueError(
                         "Resource type {{}} not understood".format(rtype))
-
-            print("Calling create and register resource 1")
             resource1, rname1 = create_and_register_resource("{rtype}")
-            print("Calling create and register resource 2")
             resource2, rname2 = create_and_register_resource("{rtype}")
-
-            print("Writting rname1")
-            os.write({w}, rname1.encode("ascii") + b"name1\\n")
-            print("Writting rname2")
-            os.write({w}, rname2.encode("ascii") + b"name2\\n")
-
+            os.write({w}, rname1.encode("ascii") + b"\\n")
+            os.write({w}, rname2.encode("ascii") + b"\\n")
             time.sleep(10)
         '''
         for rtype in resource_tracker._CLEANUP_FUNCS:
