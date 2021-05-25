@@ -5020,10 +5020,6 @@ class TestResourceTracker(unittest.TestCase):
             import multiprocessing as mp
             print("importing resource tracker")
             from multiprocessing import resource_tracker
-            print("checking if rtype is shared_memory")
-            if rtype == "shared_memory":
-                print("Using rtype shared memory")
-                from multiprocessing.shared_memory import SharedMemory
 
             print("setting start method to spawn")
             mp.set_start_method("spawn")
