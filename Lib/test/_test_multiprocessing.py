@@ -5014,14 +5014,20 @@ class TestResourceTracker(unittest.TestCase):
         # Check that killing process does not leak named semaphores
         #
         cmd = '''if 1:
+            print("importing time, os, tempfile")
             import time, os, tempfile
+            print("importing multiprocessing")
             import multiprocessing as mp
+            print("importing resource tracker")
             from multiprocessing import resource_tracker
+            print("checking if rtype is shared_memory")
             if rtype == "shared_memory":
                 print("Using rtype shared memory")
                 from multiprocessing.shared_memory import SharedMemory
 
+            print("setting start method to spawn")
             mp.set_start_method("spawn")
+            print("getting random name sequence")
             rand = tempfile._RandomNameSequence()
 
 
@@ -5036,11 +5042,14 @@ class TestResourceTracker(unittest.TestCase):
                     raise ValueError(
                         "Resource type {{}} not understood".format(rtype))
 
-
+            print("Calling create and register resource 1")
             resource1, rname1 = create_and_register_resource("{rtype}")
+            print("Calling create and register resource 2")
             resource2, rname2 = create_and_register_resource("{rtype}")
 
+            print("Writting rname1")
             os.write({w}, rname1.encode("ascii") + b"name1\\n")
+            print("Writting rname2")
             os.write({w}, rname2.encode("ascii") + b"name2\\n")
 
             time.sleep(10)
@@ -5051,6 +5060,7 @@ class TestResourceTracker(unittest.TestCase):
                     # Artefact resource type used by the resource_tracker
                     continue
                 r, w = os.pipe()
+                print(f"subprocess cmd to run: {cmd.format(w=w, rtype=rtype)}")
                 p = subprocess.Popen([sys.executable,
                                      '-E', '-c', cmd.format(w=w, rtype=rtype)],
                                      pass_fds=[w],
