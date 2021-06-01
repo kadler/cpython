@@ -74,7 +74,8 @@ pipeline {
         _gdbm
         EOF
         '''
-        sh '/QOpenSys/sudo -u pybuild make -j4'
+        sh '/QOpenSys/sudo -u pybuild make -j4 python'
+        sh '/QOpenSys/sudo -u pybuild make'
       }
     }
     stage('test') {
