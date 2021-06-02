@@ -19,6 +19,7 @@ python.pc.in            Package configuration info template for pkg-config
 python-wing*.wpr        Wing IDE project file
 README                  The file you're reading now
 README.AIX              Information about using Python on AIX
+README.IBM_i            Information about using Python on IBM i
 README.coverity         Information about running Coverity's Prevent on Python
 README.valgrind         Information for Valgrind users, see valgrind-python.supp
 SpecialBuilds.txt       Describes extra symbols you can set for debug builds
