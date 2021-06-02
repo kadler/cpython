@@ -3399,7 +3399,6 @@ class SCMRightsTest(SendrecvmsgServerTimeoutBase):
     @unittest.skipIf(sys.platform == "darwin", "skipping, see issue #12958")
     @unittest.skipIf(AIX, "skipping, see issue #22397")
     @requireAttrs(socket, "CMSG_SPACE")
-    # Passes on OS400 after applying MF67137
     def testFDPassSeparate(self):
         # Pass two FDs in two separate arrays.  Arrays may be combined
         # into a single control message by the OS.
@@ -3424,7 +3423,6 @@ class SCMRightsTest(SendrecvmsgServerTimeoutBase):
     @unittest.skipIf(sys.platform == "darwin", "skipping, see issue #12958")
     @unittest.skipIf(AIX, "skipping, see issue #22397")
     @requireAttrs(socket, "CMSG_SPACE")
-    # Passes on OS400 after applying MF67137
     def testFDPassSeparateMinSpace(self):
         # Pass two FDs in two separate arrays, receiving them into the
         # minimum space for two arrays.
