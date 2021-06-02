@@ -750,7 +750,7 @@ class ItimerTest(unittest.TestCase):
         # and the handler should have been called
         self.assertEqual(self.hndl_called, True)
 
-    @unittest.skipIf(sys.platform in ('os400',),
+    @unittest.skipIf(sys.platform == 'os400',
                      'ITIMER_PROF is unsupported on IBM i')
     def test_itimer_prof(self):
         self.itimer = signal.ITIMER_PROF

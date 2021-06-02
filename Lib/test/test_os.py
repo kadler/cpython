@@ -3914,7 +3914,7 @@ class TestScandir(unittest.TestCase):
 
     @unittest.skipUnless(os.listdir in os.supports_fd,
                          'fd support for listdir required for this test.')
-    @unittest.skipIf(sys.platform in ('os400',),
+    @unittest.skipIf(sys.platform == 'os400',
                      'DirEntry.is_symlink requires fstatat which is disabled'
                      'On IBM i')
     def test_fd(self):
