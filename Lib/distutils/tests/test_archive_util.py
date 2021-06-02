@@ -369,14 +369,13 @@ class ArchiveUtilTestCase(support.TempdirManager,
 
     @unittest.skipUnless(ZLIB_SUPPORT, "Requires zlib")
     @unittest.skipUnless(UID_GID_SUPPORT, "Requires grp and pwd support")
-    @unittest.skipIf(sys.platform in ('os400',),
+    @unittest.skipIf(sys.platform == 'os400',
                      'No root user on IBM i, UID 0 = qsecofer & gid 0 = *NONE')
     def test_tarfile_root_owner(self):
         tmpdir =  self._create_files()
         base_name = os.path.join(self.mkdtemp(), 'archive')
         old_dir = os.getcwd()
         os.chdir(tmpdir)
-
         group = grp.getgrgid(0)[0]
         owner = pwd.getpwuid(0)[0]
         try:

@@ -34,7 +34,7 @@ from test.support import TESTFN, FakePath
 
 TESTFN2 = TESTFN + "2"
 MACOS = sys.platform.startswith("darwin")
-AIX = sys.platform in ('aix',)
+AIX = sys.platform == 'aix'
 try:
     import grp
     import pwd
@@ -1393,7 +1393,7 @@ class TestArchives(BaseTest, unittest.TestCase):
             uid = 0
             gid = 0
 
-            if sys.platform in ('os400'):
+            if sys.platform == 'os400':
                 gid = 4294947291  # pygrp1
                 uid = 117  # pybuild
 
@@ -1422,7 +1422,7 @@ class TestArchives(BaseTest, unittest.TestCase):
 
     @support.requires_zlib
     @unittest.skipUnless(UID_GID_SUPPORT, "Requires grp and pwd support")
-    @unittest.skipIf(sys.platform in ('os400',),
+    @unittest.skipIf(sys.platform == 'os400',
                      'No root user on IBM i, UID 0 = qsecofer & gid 0 = *NONE')
     def test_tarfile_root_owner(self):
         root_dir, base_dir = self._create_files()

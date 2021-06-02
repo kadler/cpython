@@ -746,7 +746,7 @@ class PosixTester(unittest.TestCase):
             check_stat(uid, gid)
             # On OS400 GID 0 refers to *NONE rather than root GID. A non-root
             # user is allowed to set GID 0 thus the OSError won't get raised
-            if platform.system() not in ('OS400'):
+            if platform.system() != 'OS400':
                 if 0 not in os.getgroups():
                     self.assertRaises(OSError, chown_func, first_param, -1, 0)
                     check_stat(uid, gid)
