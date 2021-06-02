@@ -1,0 +1,160 @@
+
+This documentation tries to help people who intend to use Python on
+IBM i.
+
+======================================================================
+			   Compiling Python
+----------------------------------------------------------------------
+
+Ensure you have Development Tools group package installed:
+
+```bash
+yum group install 'Development Tools
+```
+
+Change into the Python directory and run `configure` then `make` scripts.
+
+```bash
+cd Python-3.9
+
+./configure \
+   OBJECT_MODE = '64' \
+   CC = 'gcc' \
+   CXX = 'g++' \
+   CPPFLAGS = "-I/QOpenSys/pkgs/include -I/QOpenSys/pkgs/include/ncurses -D_ALL_SOURCE -D_XOPEN_SOURCE=700" \
+   LDFLAGS = '-L/QOpenSys/pkgs/lib' \
+   LDFLAGS_NODIST = '-lutil' \
+   ARFLAGS="-X64 rc" \
+   CCSHARED = '-fPIC' \
+   ac_cv_func_clock_settime = "no" \
+   ac_cv_func_posix_fadvise = "no" \
+   ac_cv_func_posix_fallocate = "no" \
+   ac_cv_func_sched_get_priority_max = "no" \
+   ac_cv_func_sched_rr_get_interval = "no" \
+   ac_cv_func_sched_setaffinity = "no" \
+   ac_cv_func_sched_setparam = "no" \
+   ac_cv_func_sched_setscheduler = "no" \
+   ac_cv_func_fexecve = "no" \
+   ac_cv_func_faccessat = "no" \
+   ac_cv_func_fchmodat = "no" \
+   ac_cv_func_fchownat = "no" \
+   ac_cv_func_fstatat = "no" \
+   ac_cv_func_futimesat = "no" \
+   ac_cv_func_linkat = "no" \
+   ac_cv_func_mkdirat = "no" \
+   ac_cv_func_mkfifoat = "no" \
+   ac_cv_func_mknodat = "no" \
+   ac_cv_func_openat = "no" \
+   ac_cv_func_readlinkat = "no" \
+   ac_cv_func_renameat = "no" \
+   ac_cv_func_symlinkat = "no" \
+   ac_cv_func_unlinkat = "no" \
+   ac_cv_func_utimensat = "no" \
+   ac_cv_func_shm_open = "no" \
+   ac_cv_func_shm_unlink = "no" \
+   ac_cv_func_setregid = "no" \
+   ac_cv_enable_visibility = "no" \
+   ac_cv_flock_decl = "no" \
+   ac_cv_lib_bsd_flock = "no" \
+   --config-cache \
+   --with-system-expat \
+   --with-system-ffi \
+   --with-ensurepip=no \
+   --with-tcltk-includes="$(pkg-config --cflags tk)" \
+   --with-tcltk-libs="$(pkg-config --libs tk)" \
+   --with-computed-gotos \
+   --enable-ipv6 \
+   --enable-loadable-sqlite-extensions \
+   --enable-shared \
+   #end
+```
+
+```bash
+make -j4 python
+make
+```
+======================================================================
+			     Testing
+----------------------------------------------------------------------
+IBM i does not come out of the box with groups setup. Some tests require groups
+so we must setup groups before hand.
+
+```
+CRTUSRPRF USRPRF(PYBUILD) UID(117)
+CRTUSRPRF USRPRF(PYGRP1) GID(4294947291)
+CHGUSRPRF USRPRF(PYBUILD) GRPPRF(PYGRP1) GRPAUT(*ALL)
+```
+
+======================================================================
+			     Known issues
+----------------------------------------------------------------------
+
+- There is SLIC bug that affects PASE recvmsg ancillary data buffer limit bigger
+than 256 bytes to return `EINVAL`.
+
+	Ensure the following PTFs are installed to
+	resolve the issue:
+
+	```
+	MF67137 V7R2M0 approved 2020-03-05 10:28:12.0
+	MF67138 V7R3M0 approved 2020-03-05 10:28:42.0
+	MF67139 V7R4M0 approved 2020-03-05 10:29:13.0
+	```
+
+- IBM i sockets bug `Errno 10: Socket type not supported`:
+
+	```python
+	>>> import socket
+	>>> socket.getaddrinfo('localhost', 80)
+	Traceback (most recent call last):
+	  File "<stdin>", line 1, in <module>
+	  File "/QOpenSys/pkgs/lib/python3.6/socket.py", line 745, in getaddrinfo
+	    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+	socket.gaierror: [Errno 10] Socket type not supported
+	```
+
+	Need to apply PTF [MF65685](https://www.ibm.com/support/pages/ptf/MF65685) for fix.
+
+
+- SLIC was not adding the O_LARGEFILE flag in the 64-bit syscalls
+
+
+	```python
+	>>> import os
+	>>> TESTFN = "{}_{}_tmp".format("@test", os.getpid())
+	>>> LARGE = 2**31
+	>>> with open(TESTFN, "w+b", 0) as f:
+	...     assert f.readable()
+	...     assert f.writable()
+	...     ret = f.seek(LARGE)
+	...     print(f"ret is: {ret} , type is: {type(ret)}")
+	...     print(f"LARGE is: {LARGE}, type is: {type(LARGE)}")
+	...
+	Traceback (most recent call last):
+	  File "<stdin>", line 4, in <module>
+	OSError: [Errno 127] Value too large to be stored in data type
+	```
+
+	Need to apply the following PTFS for fix:
+	```
+	R720 MF65149 PTF Cover Letter   1000
+	R730 MF65148 PTF Cover Letter   1000
+	```
+	Related to this issue [kadler/cpython#31](https://github.com/kadler/cpython/issues/31)
+
+- [DirEntry.is_symlink](https://docs.python.org/3/library/os.html#os.DirEntry.is_symlink)
+  requires [fstatat](https://github.ibm.com/ibmi-oss/rpm-specs/wiki/Unimplemented-Functions--and-Features-of-PASE#fstatat)
+  which is disabled on IBM i. Calling it results in the following `NotImplementedError: can't fetch stat`
+
+- [time.CLOCK_THREAD_CPUTIME_ID](https://docs.python.org/3/library/time.html#time.CLOCK_THREAD_CPUTIME_ID)
+ `AttributeError: module 'time' has no attribute` because `CLOCK_THREAD_CPUTIME_ID`
+  is undefined in PASE.
+
+- [os.utime](https://docs.python.org/3/library/os.html#os.utime) cannot set time
+   past 2038. This is due limitation in IFS not supporting times past 2038.
+
+- [multiprocessing.shared_memory](https://docs.python.org/3/library/multiprocessing.shared_memory.html?highlight=shared_memory#module-multiprocessing.shared_memory)
+  module is disabled on IBM i
+
+- On IBM i socket option `SO_REUSEADDR` maps to `SO_REUSEPORT` and vice versa.
+  Enabling one of this automatically enables another.
