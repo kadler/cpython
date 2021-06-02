@@ -193,9 +193,6 @@ class SimpleTest(abc.LoaderTests):
                 shutil.rmtree(pycache)
 
     @util.writes_bytecode_files
-    @unittest.skipIf(sys.platform == "os400",
-                     "On IBM i IFS doesn't support times past 2038"
-                     "os.utime of (2 ** 33 - 5) creates date in 2242")
     def test_timestamp_overflow(self):
         # When a modification timestamp is larger than 2**32, it should be
         # truncated rather than raise an OverflowError.
@@ -209,6 +206,8 @@ class SimpleTest(abc.LoaderTests):
             except OverflowError:
                 self.skipTest("cannot set modification time to large integer")
             except OSError as e:
+                if sys.platform == "os400" and e.errno == getattr(errno, 'EINVAL', None):
+                    self.skipTest("On IBM i IFS doesn't support times past 2038")
                 if e.errno != getattr(errno, 'EOVERFLOW', None):
                     raise
                 self.skipTest("cannot set modification time to large integer ({})".format(e))
