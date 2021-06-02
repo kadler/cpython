@@ -206,9 +206,10 @@ class SimpleTest(abc.LoaderTests):
             except OverflowError:
                 self.skipTest("cannot set modification time to large integer")
             except OSError as e:
-                if sys.platform == "os400" and e.errno == getattr(errno, 'EINVAL', None):
-                    self.skipTest("On IBM i IFS doesn't support times past 2038")
-                if e.errno != getattr(errno, 'EOVERFLOW', None):
+                errnos = [getattr(errno, 'EOVERFLOW', None)]
+                if sys.platform == 'os400':
+                    errnos.append(getattr(errno, 'EINVAL', None))
+                if e.errno not in errnos:
                     raise
                 self.skipTest("cannot set modification time to large integer ({})".format(e))
             loader = self.machinery.SourceFileLoader('_temp', mapping['_temp'])
