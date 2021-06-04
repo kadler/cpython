@@ -1375,7 +1375,7 @@ _PyTime_GetThreadTimeWithInfo(_PyTime_t *tp, _Py_clock_info_t *info)
     return 0;
 }
 
-#elif defined(_AIX)
+#elif defined(_AIX) && !defined(__PASE__)
 #define HAVE_THREAD_TIME
 static int
 _PyTime_GetThreadTimeWithInfo(_PyTime_t *tp, _Py_clock_info_t *info)
